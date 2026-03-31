@@ -1,29 +1,25 @@
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 import { MetadataRoute } from "next";
-import { db } from "@/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import data from "@/data.json";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://idol-ranking-sage.vercel.app";
 
-  const snapshot = await getDocs(collection(db, "idols"));
-
-  const idols = snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-
-  // タグ集める
   const tagSet = new Set<string>();
 
-  idols.forEach((idol: any) => {
+  data.forEach((idol: any) => {
     if (idol.tags) {
-      idol.tags.split(",").forEach((tag: string) => {
-        if (tag && tag.trim()) {
-          tagSet.add(tag.trim());
-        }
-      });
+      // 👇 配列対応
+      if (Array.isArray(idol.tags)) {
+        idol.tags.forEach((tag: string) => {
+          if (tag) tagSet.add(tag);
+        });
+      } else {
+        idol.tags.split(",").forEach((tag: string) => {
+          if (tag && tag.trim()) tagSet.add(tag.trim());
+        });
+      }
     }
   });
 
@@ -35,13 +31,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
     },
 
-    // アイドルページ
-    ...idols.map((idol) => ({
-      url: `${baseUrl}/idol/${idol.id}`,
-      lastModified: new Date(),
-    })),
+    ...data
+      .filter((idol: any) => idol.id)
+      .map((idol: any) => ({
+        url: `${baseUrl}/idol/${idol.id}`,
+        lastModified: new Date(),
+      })),
 
-    // タグページ
     ...tags.map((tag) => ({
       url: `${baseUrl}/tag/${encodeURIComponent(tag)}`,
       lastModified: new Date(),
