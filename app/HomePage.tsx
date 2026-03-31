@@ -414,13 +414,14 @@ const fetchTagRanking = async (tag: string) => {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
                         {tagRanking.slice(0, 5).map((idol,i) => (
+                       <Link href={`/idol/${idol.id}`}>
                         <motion.div
                             key={idol.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.05 }}
-                            className="text-center"
-                            >
+                            className="text-center cursor-pointer hover:scale-105 transition"
+                        >
                             <img
                             src={idol.image}
                             className="rounded-xl w-full aspect-[2/3] object-cover"
@@ -432,6 +433,7 @@ const fetchTagRanking = async (tag: string) => {
                             {idol.count}票
                             </div>
                         </motion.div>
+                        </Link>
                         ))}
                     </div>
                     </div>
