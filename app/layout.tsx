@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   description:
     "人気アイドルをランキング形式で紹介。投票で順位が変動する参加型サイト。",
   keywords: ["グラビア", "アイドル" , "ランキング", "人気", "投票"],
+  verification:{
+    google:"78uSALJmInWnO_vLJV0TI9nJujf_UxHyfjnjgEJ8958",
+  }
 };
 
 export default function RootLayout({
