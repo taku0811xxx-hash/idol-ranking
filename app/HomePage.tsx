@@ -588,7 +588,7 @@ const fetchTagRanking = async (tag: string) => {
                 </h2>
 
                 <h3 className="font-bold text-xl mb-6 border-b pb-2 text-center">
-                    あなたの推しのもっといい写真があればぜひこちらから投稿ください！
+                    あなたの推しのもっといい写真はこちらから投稿ください！
                 </h3>
 
                 <input
