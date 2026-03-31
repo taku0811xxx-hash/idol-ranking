@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { noto } from "./fonts";
 import Script from "next/script";
-import GA from "./GA"; // ← 追加
+import GA from "./GA";
 
 export const metadata: Metadata = {
   title: "ランキング｜人気投票サイト",
@@ -21,13 +21,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <head>
+      <body className={`${noto.className} min-h-screen overflow-x-hidden`}>
+        
         {/* 🔥 Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-F52LGM1JDL"
           strategy="afterInteractive"
         />
-        <Script id="ga">
+        <Script id="ga" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -35,11 +36,10 @@ export default function RootLayout({
             gtag('config', 'G-F52LGM1JDL');
           `}
         </Script>
-      </head>
 
-      <body className={`${noto.className} min-h-screen overflow-x-hidden`}>
-        {/* 🔥 ページ遷移ごとに発火 */}
+        {/* 🔥 ページ遷移計測 */}
         <GA />
+
         {children}
       </body>
     </html>

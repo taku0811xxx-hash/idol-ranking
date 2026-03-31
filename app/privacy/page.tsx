@@ -1,36 +1,24 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { auth } from "../../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { useRouter } from "next/navigation";
+import { useRef } from "react";
 import { Trophy, Star, Home, ImagePlus } from "lucide-react";
 import Link from "next/link";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const router = useRouter();
-
+export default function PrivacyPage() {
   const rankingRef = useRef<HTMLDivElement>(null);
   const recommendRef = useRef<HTMLDivElement>(null);
   const voteRef = useRef<HTMLDivElement>(null);
   const postRef = useRef<HTMLDivElement>(null);
 
-  const login = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/");
-    } catch (e: any) {
-      alert(e.message);
-    }
+  const scrollTo = (ref: any) => {
+    ref.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <>
       {/* ヘッダー */}
       <div className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 pt-3 pb-5">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 pt-3 pb-5">
           <Link href="/" className="text-2xl font-bold text-pink-500">
             Idol Ranking
           </Link>
@@ -43,104 +31,92 @@ export default function LoginPage() {
 
         {/* サイドバー */}
         <aside className="hidden md:block fixed left-0 top-15 h-screen w-56 bg-white/80 backdrop-blur border-r p-4 z-40">
-          <div className="font-bold text-lg mb-6">MENU</div>
+            <div className="font-bold text-lg mb-6">MENU</div>
 
-          <div className="space-y-4 text-sm">
+            <div className="space-y-4 text-sm">
 
-            <Link href="/" className="flex gap-2 hover:text-pink-500">
-              <Trophy size={16}/> ランキング
-            </Link>
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <Trophy size={16}/> ランキング
+                </Link>
 
-            <Link href="/" className="flex gap-2 hover:text-pink-500">
-              <Star size={16}/> おすすめ
-            </Link>
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <Star size={16}/> おすすめ
+                </Link>
 
-            <Link href="/" className="flex gap-2 hover:text-pink-500">
-              <Home size={16}/> 投票
-            </Link>
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <Home size={16}/> 投票
+                </Link>
 
-            <Link href="/" className="flex gap-2 hover:text-pink-500">
-              <ImagePlus size={16}/> 投稿
-            </Link>
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <ImagePlus size={16}/> 投稿
+                </Link>
 
-            <div className="pt-4 border-t space-y-4">
-
-              <Link href="/register" className="flex gap-2 hover:text-pink-500">
+                {/* 👇 ここ追加 */}
+                <Link href="/register" className="flex gap-2 hover:text-pink-500 transition">
                 会員登録
-              </Link>
+                </Link>
 
-              <Link href="/login" className="flex gap-2 text-pink-500 font-bold">
+                <Link href="/login" className="flex gap-2 hover:text-pink-500 transition">
                 ログイン
-              </Link>
+                </Link>
 
-            </div>
-
-            <div className="pt-4 border-t space-y-4">
-
-              <Link href="/privacy" className="flex gap-2 hover:text-pink-500">
+                <Link href="/privacy" className="flex gap-2 hover:text-pink-500 transition">
                 プライバシーポリシー
-              </Link>
+                </Link>
 
-              <Link href="/contact" className="flex gap-2 hover:text-pink-500">
+                <Link href="/contact" className="flex gap-2 hover:text-pink-500 transition">
                 お問い合わせ
-              </Link>
+                </Link>
 
-              <Link href="/about" className="flex gap-2 hover:text-pink-500">
+                <Link href="/about" className="flex gap-2 hover:text-pink-500 transition">
                 運営者情報
-              </Link>
+                </Link>
 
             </div>
+            </aside>
 
-          </div>
-        </aside>
-
-        {/* 🔥 これが重要（ズレ防止） */}
+        {/* ここがポイント */}
         <div className="md:ml-56 flex flex-col min-h-screen">
 
           {/* メイン */}
-          <main className="flex-1 flex items-center justify-center pt-10 pb-20 px-4">
+          <main className="flex-1 pt-10 pb-20 px-4">
 
-            <div className="bg-white p-8 rounded-2xl shadow w-full max-w-sm space-y-4">
+            <div className="max-w-3xl mx-auto bg-white p-8 md:p-12 rounded-2xl shadow">
 
-              <h1 className="text-xl font-bold text-center">
-                ログイン
+              <h1 className="text-2xl md:text-3xl font-bold mb-8 text-center">
+                プライバシーポリシー
               </h1>
 
-              <input
-                type="email"
-                placeholder="メール"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="border p-2 w-full rounded"
-              />
+              <div className="space-y-8 text-sm leading-relaxed text-gray-700">
+                <section>
+                  <h2 className="font-bold text-lg mb-2">■ 個人情報の利用目的</h2>
+                  <p>お問い合わせ時に取得した情報は対応のために利用します。</p>
+                </section>
 
-              <input
-                type="password"
-                placeholder="パスワード"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="border p-2 w-full rounded"
-              />
+                <section>
+                  <h2 className="font-bold text-lg mb-2">■ 広告について</h2>
+                  <p>Google AdSenseを利用予定です。</p>
+                </section>
 
-              <button
-                onClick={login}
-                className="bg-pink-500 text-white py-2 rounded w-full"
-              >
-                ログイン
-              </button>
+                <section>
+                  <h2 className="font-bold text-lg mb-2">■ アクセス解析ツールについて</h2>
+                  <p>Google Analyticsを利用しています。</p>
+                </section>
 
-              <button
-                onClick={() => router.push("/register")}
-                className="text-sm text-blue-500 w-full"
-              >
-                新規登録はこちら
-              </button>
+                <section>
+                  <h2 className="font-bold text-lg mb-2">■ 免責事項</h2>
+                  <p>当サイトの情報による損害について責任を負いません。</p>
+                </section>
+
+                <div className="text-right text-xs text-gray-400 pt-6 border-t">
+                  制定日：2026年3月30日
+                </div>
+              </div>
 
             </div>
-
           </main>
 
-          {/* フッター */}
+          {/* フッター（同じコンテナ内に入れる） */}
           <footer className="bg-gray-900 text-white mt-16">
             <div className="max-w-6xl mx-auto px-4 py-20">
 

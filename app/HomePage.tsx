@@ -49,6 +49,8 @@ export default function HomePage() {
   alert("ログアウトしました");
     };
 
+    const [success, setSuccess] = useState(false);
+
   const [user, setUser] = useState<any>(null);
 
   const [name, setName] = useState("");
@@ -222,8 +224,9 @@ const fetchTagRanking = async (tag: string) => {
   };
 
   const submitIdol = async () => {
-    if (!name || !file) return;
+  if (!name || !file) return;
 
+  try {
     const imageUrl = await uploadImage(file);
 
     await addDoc(collection(db, "pending_idols"), {
@@ -232,10 +235,22 @@ const fetchTagRanking = async (tag: string) => {
       createdAt: serverTimestamp(),
     });
 
+    // 成功表示
+    setSuccess(true);
+
+    setTimeout(() => {
+      setSuccess(false);
+    }, 3000);
+
+    // フォームリセット
     setName("");
     setFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+
+  } catch (e) {
+    alert("投稿に失敗しました");
+  }
+};
   useEffect(() => {
   fetchIdols();
 }, []);
@@ -299,24 +314,50 @@ const fetchTagRanking = async (tag: string) => {
       <div className="bg-gradient-to-br from-pink-50 via-white to-purple-50 mt-6 min-h-screen">
 
         {/* サイドバー */}
-        <aside className="hidden md:block fixed left-0 top-15 h-screen w-56 bg-white/80 backdrop-blur border-r p-4 z-40">
-          <div className="font-bold text-lg mb-6">MENU</div>
+       <aside className="hidden md:block fixed left-0 top-15 h-screen w-56 bg-white/80 backdrop-blur border-r p-4 z-40">
+            <div className="font-bold text-lg mb-6">MENU</div>
 
-          <div className="space-y-4 text-sm">
-            <div onClick={() => scrollTo(rankingRef)} className="cursor-pointer flex gap-2">
-              <Trophy size={16}/> ランキング
+            <div className="space-y-4 text-sm">
+
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <Trophy size={16}/> ランキング
+                </Link>
+
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <Star size={16}/> おすすめ
+                </Link>
+
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <Home size={16}/> 投票
+                </Link>
+
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <ImagePlus size={16}/> 投稿
+                </Link>
+
+                {/* 👇 ここ追加 */}
+                <Link href="/register" className="flex gap-2 hover:text-pink-500 transition">
+                会員登録
+                </Link>
+
+                <Link href="/login" className="flex gap-2 hover:text-pink-500 transition">
+                ログイン
+                </Link>
+
+                <Link href="/privacy" className="flex gap-2 hover:text-pink-500 transition">
+                プライバシーポリシー
+                </Link>
+
+                <Link href="/contact" className="flex gap-2 hover:text-pink-500 transition">
+                お問い合わせ
+                </Link>
+
+                <Link href="/about" className="flex gap-2 hover:text-pink-500 transition">
+                運営者情報
+                </Link>
+
             </div>
-            <div onClick={() => scrollTo(recommendRef)} className="cursor-pointer flex gap-2">
-              <Star size={16}/> おすすめ
-            </div>
-            <div onClick={() => scrollTo(voteRef)} className="cursor-pointer flex gap-2">
-              <Home size={16}/> 投票
-            </div>
-            <div onClick={() => scrollTo(postRef)} className="cursor-pointer flex gap-2">
-              <ImagePlus size={16}/> 投稿
-            </div>
-          </div>
-        </aside>
+            </aside>
 
         {/* ⭐ レイアウト修正 */}
         <main className="flex-1 md:ml-56 mt-6 flex flex-col">
@@ -586,91 +627,144 @@ const fetchTagRanking = async (tag: string) => {
             </section>
 
             {/* 投稿 */}
-            <section ref={postRef} className="p-6">
-              <div className="bg-white rounded-2xl shadow-md p-6">
-                <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
-                  📩投稿
-                </h2>
+                <section ref={postRef} className="p-6">
+                <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl p-8 border border-pink-100">
 
-                <h3 className="font-bold text-xl mb-6 border-b pb-2 text-center">
-                    あなたの推しのもっといい写真はこちらから投稿ください！
-                </h3>
+                    {/* タイトル */}
+                    <div className="text-center mb-6">
+                    <div className="text-3xl mb-2">📸</div>
+                    <h2 className="font-bold text-2xl mb-2">
+                        写真を投稿する
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                        あなたの推しの魅力をシェアしよう
+                    </p>
+                    </div>
 
-                <input
-                  placeholder="名前"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="border p-2 w-full mb-2"
-                />
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="mb-2"
-                />
-                <button
-                  onClick={submitIdol}
-                  className="bg-pink-500 text-white px-4 py-2 rounded"
-                >
-                  投稿
-                </button>
-              </div>
-            </section>
+                    {/* 入力 */}
+                    <div className="space-y-4">
+
+                    {/* 名前 */}
+                    <input
+                        placeholder="アイドルの名前"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    />
+
+                    {/* ファイル */}
+                    <label className="block w-full border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-pink-400 transition">
+                        <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={(e) => setFile(e.target.files?.[0] || null)}
+                        className="hidden"
+                        />
+                        <div className="text-gray-500">
+                        クリックして画像を選択
+                        </div>
+                    </label>
+
+                    {/* プレビュー */}
+                    {file && (
+                        <div className="mt-2">
+                        <img
+                            src={URL.createObjectURL(file)}
+                            className="w-full rounded-xl object-cover max-h-64"
+                        />
+                        </div>
+                    )}
+
+                    {/* ボタン */}
+                    <button
+                        onClick={submitIdol}
+                        className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-xl font-bold text-lg hover:opacity-90 transition cursor-pointer"
+                    >
+                        投稿する
+                    </button>
+
+                    {success && (
+                <div className="fixed bottom-6 right-6 bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg">
+                    投稿できました！🎉
+                </div>
+                )}
+
+                    </div>
+                </div>
+                </section>
 
           </div>
 
           {/* フッター（メニューあり＋高さしっかり） */}
           <footer className="w-full bg-gray-900 text-white mt-16">
-        <div className="max-w-5xl mx-auto px-6 py-20">
+                <div className="max-w-5xl mx-auto px-6 py-20">
 
-            {/* メニュー */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-16 text-sm text-center md:text-left">
+                    {/* メニュー */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-10 text-sm text-center md:text-left">
 
-                <div>
-                    <div className="font-bold mb-4 text-white">サイト</div>
-                    <div className="space-y-3 text-gray-400">
-                    <div onClick={() => scrollTo(rankingRef)} className="cursor-pointer hover:text-white transition">ランキング</div>
-                    <div onClick={() => scrollTo(recommendRef)} className="cursor-pointer hover:text-white transition">おすすめ</div>
+                    {/* ① サイト */}
+                    <div>
+                        <div className="font-bold mb-4 text-white">サイト</div>
+                        <div className="space-y-3 text-gray-400">
+                        <div onClick={() => scrollTo(rankingRef)} className="cursor-pointer hover:text-white transition">
+                            ランキング
+                        </div>
+                        <div onClick={() => scrollTo(recommendRef)} className="cursor-pointer hover:text-white transition">
+                            おすすめ
+                        </div>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <div className="font-bold mb-4 text-white">機能</div>
-                    <div className="space-y-3 text-gray-400">
-                    <div onClick={() => scrollTo(voteRef)} className="cursor-pointer hover:text-white transition">投票</div>
-                    <div onClick={() => scrollTo(postRef)} className="cursor-pointer hover:text-white transition">投稿</div>
+                    {/* ② 機能 */}
+                    <div>
+                        <div className="font-bold mb-4 text-white">機能</div>
+                        <div className="space-y-3 text-gray-400">
+                        <div onClick={() => scrollTo(voteRef)} className="cursor-pointer hover:text-white transition">
+                            投票
+                        </div>
+                        <div onClick={() => scrollTo(postRef)} className="cursor-pointer hover:text-white transition">
+                            投稿
+                        </div>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <div className="font-bold mb-4 text-white">アカウント</div>
-                    <div className="space-y-3 text-gray-400">
-                    <a href="/login" className="hover:text-white transition">ログイン</a>
-                    <a href="/register" className="hover:text-white transition">会員登録</a>
+                    {/* ③ アカウント */}
+                    <div>
+                        <div className="font-bold mb-4 text-white">アカウント</div>
+                        <div className="space-y-3 text-gray-400">
+                        <a href="/login" className="block hover:text-white transition">
+                        ログイン
+                        </a>
+                        <a href="/register" className="block hover:text-white transition">
+                        会員登録
+                        </a>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <div className="font-bold mb-4 text-white">その他</div>
-                    <div className="space-y-3 text-gray-400">
-                    <div className="hover:text-white transition">利用規約</div>
-                    <div className="hover:text-white transition">プライバシー</div>
+                    {/* ④ その他 */}
+                    <div>
+                        <div className="font-bold mb-4 text-white">その他</div>
+                        <div className="space-y-3 text-gray-400">
+                        <a href="/privacy" className="block hover:text-white transition">プライバシーポリシー</a>
+                        <a href="/contact" className="block hover:text-white transition">お問い合わせ</a>
+                        <a href="/about" className="block hover:text-white transition">運営者情報</a>
+                        </div>
                     </div>
-                </div>
+
+                    </div>
+
+                    {/* ↓↓↓ ここからは外！！！ */}
+
+                    {/* 区切り線 */}
+                    <div className="border-t border-gray-700 my-10"></div>
+
+                    {/* コピー */}
+                    <div className="text-center text-xs text-gray-400 tracking-wide">
+                    © 2026 Gravure Rank
+                    </div>
 
                 </div>
-
-                {/* 区切り線 */}
-                <div className="border-t border-gray-700 my-10"></div>
-
-                {/* コピー */}
-                <div className="text-center text-xs text-gray-400 tracking-wide">
-                © 2026 Gravure Rank
-                </div>
-
-            </div>
-            </footer>
-
+                </footer>
         </main>
 
         {/* モーダル */}
