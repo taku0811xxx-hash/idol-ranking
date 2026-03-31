@@ -290,10 +290,10 @@ const fetchTagRanking = async (tag: string) => {
         </div>
         
         </div>
-      <div className="h-6"></div>
+      <div className="h-20"></div>
 
       {/* ⭐ 高さ問題の根本解決 */}
-      <div className="flex bg-gradient-to-br from-pink-50 via-white to-purple-50 mt-6 min-h-screen">
+      <div className="bg-gradient-to-br from-pink-50 via-white to-purple-50 mt-6 min-h-screen">
 
         {/* サイドバー */}
         <aside className="hidden md:block fixed left-0 top-15 h-screen w-56 bg-white/80 backdrop-blur border-r p-4 z-40">
@@ -316,15 +316,15 @@ const fetchTagRanking = async (tag: string) => {
         </aside>
 
         {/* ⭐ レイアウト修正 */}
-        <main className="flex-1 ml-56 mt-6 flex flex-col">
+        <main className="flex-1 md:ml-56 mt-6 flex flex-col">
 
           {/* コンテンツ */}
           <div className="flex-grow">
 
             {/* タイトル */}
-            <div className="p-10 text-center mb-10">
+            <div className="p-4 md:p-10 text-center mb-10">
 
-              <div className="inline-block px-10 py-8 rounded-2xl 
+              <div className="w-full max-w-xl mx-auto px-6 py-6 md:px-10 md:py-8 rounded-2xl
                 bg-gradient-to-br from-pink-50 via-white to-purple-50
                 border border-pink-200 shadow-md mb-15">
 
@@ -409,7 +409,7 @@ const fetchTagRanking = async (tag: string) => {
                         🔥 {selectedTag} 人気ランキング
                     </h2>
 
-                    <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
                         {tagRanking.slice(0, 5).map((idol,i) => (
                         <motion.div
                             key={idol.id}
@@ -454,12 +454,12 @@ const fetchTagRanking = async (tag: string) => {
 
             {/* ランキング */}
             <section ref={rankingRef} className="p-10 flex justify-center">
-              <div className="bg-white rounded-2xl shadow-md px-10 py-8 inline-block">
+              <div className="bg-white rounded-2xl shadow-md px-6 md:px-10 py-6 md:py-8 w-full max-w-xl mx-auto">
                 <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
                   🏆ランキング
                 </h2>
 
-                <div className="flex justify-center gap-8">
+                <div className="flex flex-col md:flex-row items-center justify-center gap-6">
                   {ranking.slice(0, 3).map((idol, i) => (
                     <Link
                         key={i}
@@ -469,7 +469,7 @@ const fetchTagRanking = async (tag: string) => {
                         <img
                         src={idol.image}
                         className={`object-cover rounded-xl mx-auto aspect-[2/3]
-                            ${i === 0 ? "w-52" : "w-40"}
+                            ${i === 0 ? "w-40 md:w-52" : "w-28 md:w-40"}
                         `}
                         />
 
@@ -542,7 +542,7 @@ const fetchTagRanking = async (tag: string) => {
                     </div>
                     )}
 
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
                   {filteredIdols.map((idol) => (
                     <div
                       key={idol.id}
