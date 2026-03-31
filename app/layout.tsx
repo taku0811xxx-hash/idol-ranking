@@ -29,13 +29,18 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
         <Script id="ga" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-F52LGM1JDL');
-          `}
-        </Script>
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag; // ← これ追加（重要）
+
+          gtag('js', new Date());
+
+          gtag('config', 'G-F52LGM1JDL', {
+            page_path: window.location.pathname,
+          });
+        `}
+      </Script>
 
         {/* 🔥 ページ遷移計測 */}
         <GA />
