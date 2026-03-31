@@ -290,7 +290,7 @@ const fetchTagRanking = async (tag: string) => {
         </div>
         
         </div>
-      <div className="h-20"></div>
+      <div className="h-10"></div>
 
       {/* ⭐ 高さ問題の根本解決 */}
       <div className="bg-gradient-to-br from-pink-50 via-white to-purple-50 mt-6 min-h-screen">

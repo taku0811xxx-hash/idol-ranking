@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { noto } from "./fonts";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "ランキング｜人気投票サイト",
@@ -20,24 +21,22 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
-        {/* 🔥 ここに直接書く */}
-        <script
-          async
+        {/* 🔥 Google Analytics */}
+        <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-F52LGM1JDL"
-        ></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-F52LGM1JDL');
-            `,
-          }}
+          strategy="afterInteractive"
         />
+        <Script id="ga">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-F52LGM1JDL');
+          `}
+        </Script>
       </head>
 
-      <body className={`${noto.className} min-h-screen`}>
+      <body className={`${noto.className} min-h-screen overflow-x-hidden`}>
         {children}
       </body>
     </html>
