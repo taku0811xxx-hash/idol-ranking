@@ -36,7 +36,7 @@ export default function RootLayout({
 
           gtag('js', new Date());
 
-          gtag('config', 'G-F52LGM1JDL', {
+          gtag('config', 'G-F5L2GM1JDL', {
             page_path: window.location.pathname,
           });
         `}
