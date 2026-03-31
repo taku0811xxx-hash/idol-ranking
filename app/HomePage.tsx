@@ -180,8 +180,11 @@ const fetchTagRanking = async (tag: string) => {
 
     const merged = sorted.map((r) => {
       const idol = idols.find((i) => i.name === r.name);
-      return { ...r, image: idol?.image };
-    });
+      return { 
+        ...r, 
+        id: idol?.id,   
+        image: idol?.image };
+        });
 
     setRanking(merged);
   };
