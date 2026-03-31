@@ -21,14 +21,13 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${noto.className} min-h-screen`}>
-        {children}
 
-        {/* 🔥 Google Analytics */}
+        {/* 🔥 Google Analytics（先に置く） */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-F52LGM1JDL"
           strategy="afterInteractive"
         />
-        <Script id="ga">
+        <Script id="ga" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -36,6 +35,9 @@ export default function RootLayout({
             gtag('config', 'G-F52LGM1JDL');
           `}
         </Script>
+
+        {children}
+
       </body>
     </html>
   );
