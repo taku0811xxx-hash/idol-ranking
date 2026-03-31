@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { noto } from "./fonts";
 import Script from "next/script";
+import GA from "./GA"; // ← 追加
 
 export const metadata: Metadata = {
   title: "ランキング｜人気投票サイト",
@@ -37,6 +38,8 @@ export default function RootLayout({
       </head>
 
       <body className={`${noto.className} min-h-screen overflow-x-hidden`}>
+        {/* 🔥 ページ遷移ごとに発火 */}
+        <GA />
         {children}
       </body>
     </html>
