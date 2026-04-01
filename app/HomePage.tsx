@@ -159,42 +159,49 @@ useEffect(() => {
         const inner = innerRef.current;
 
         let animationId: number;
-        let pos = container.scrollLeft;
         let isPaused = false;
         let isUserInteracting = false;
 
         const scroll = () => {
             if (!isPaused && !isUserInteracting) {
-                posRef.current += 0.5;
-                    container.scrollLeft = posRef.current;
+            posRef.current += 0.5;
+            container.scrollLeft = posRef.current;
 
-                    if (!isUserInteracting && posRef.current >= inner.scrollWidth / 2) {
-                    posRef.current = 0;
-                    }
+            if (posRef.current >= inner.scrollWidth / 2) {
+                posRef.current = 0;
+            }
             }
 
             animationId = requestAnimationFrame(scroll);
-            };
+        };
+
+        let timeoutId: any;
+
             handleUserRef.current = () => {
             isUserInteracting = true;
 
-            setTimeout(() => {
+            clearTimeout(timeoutId);
+
+            timeoutId = setTimeout(() => {
                 isUserInteracting = false;
             }, 2000);
             };
 
-        const handleMouseEnter = () => (isPaused = true);
-        const handleMouseLeave = () => (isPaused = false);
+        // 🔥 追加
+        const handleTouchStart = () => handleUserRef.current();
+        const handleScroll = () => handleUserRef.current();
 
-        container.addEventListener("mouseenter", handleMouseEnter);
-        container.addEventListener("mouseleave", handleMouseLeave);
+        container.addEventListener("mouseenter", () => (isPaused = true));
+        container.addEventListener("mouseleave", () => (isPaused = false));
+        container.addEventListener("touchstart", handleTouchStart);
+        container.addEventListener("scroll", handleScroll);
 
         scroll();
 
         return () => {
             cancelAnimationFrame(animationId);
-            container.removeEventListener("mouseenter", handleMouseEnter);
-            container.removeEventListener("mouseleave", handleMouseLeave);
+            container.removeEventListener("touchstart", handleTouchStart);
+            container.removeEventListener("scroll", handleScroll);
         };
         }, [posts.length]);
 
