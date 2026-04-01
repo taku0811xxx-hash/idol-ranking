@@ -29,6 +29,7 @@ export default function AdminPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [proposals, setProposals] = useState<any[]>([]);
+  const [comments, setComments] = useState<any[]>([]);
 
 const [form, setForm] = useState({
     name: "",
@@ -85,6 +86,7 @@ const [form, setForm] = useState({
     fetchIdols();
     fetchPending();
     fetchProposals(); // ←追加
+    fetchComments();
   }
 }, [isAuth]);
 
@@ -283,6 +285,23 @@ const loadPending = (item:any) => {
       fetchProposals();
     };
 
+    const fetchComments = async () => {
+      const snapshot = await getDocs(collection(db, "idol_comments"));
+      const list: any[] = [];
+
+      snapshot.forEach((docItem) => {
+        list.push({ id: docItem.id, ...docItem.data() });
+      });
+
+      setComments(list);
+    };
+    const deleteComment = async (id: string) => {
+    if (!confirm("このコメント削除する？")) return;
+
+    await deleteDoc(doc(db, "idol_comments", id));
+    fetchComments();
+  };
+
   if (!isAuth) return <div className="p-6">認証中...</div>;
 
   return (
@@ -480,7 +499,29 @@ const loadPending = (item:any) => {
           </div>
         ))}
       </div>
-        </div>
+      <h2 className="font-bold mt-6 mb-2">コメント管理</h2>
+
+      <div className="space-y-2 mb-6">
+        {comments.map((item) => (
+          <div key={item.id} className="border p-3 rounded-xl">
+            <div className="text-xs text-gray-400 mb-1">
+              {item.idolId}
+            </div>
+
+            <div className="text-sm mb-2">
+              {item.text}
+            </div>
+
+            <button
+              onClick={() => deleteComment(item.id)}
+              className="text-red-500 cursor-pointer hover:opacity-70"
+            >
+              削除
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
 
         
 
