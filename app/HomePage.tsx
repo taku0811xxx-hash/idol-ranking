@@ -840,38 +840,29 @@ if (loading) return null;
                             <div ref={innerRef} className="flex gap-4 w-max">
                             {[...posts, ...posts].map((post, i) => (
                                 <div
-                                key={post.id + i}
-                                onClick={() =>
-                                    setTriggerMap((prev) => ({
-                                    ...prev,
-                                    [post.id]: (prev[post.id] || 0) + 1,
-                                    }))
-                                }
-                                className="group w-[180px] shrink-0 bg-gray-50 rounded-xl shadow relative overflow-hidden cursor-pointer transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
-                                >
-                                {post.imageUrl ? (
-                                    <img
-                                        src={post.imageUrl}
-                                        className="w-full h-48 object-cover transition duration-300 group-hover:scale-110"
-                                    />
-                                    ) : (
-                                    <div className="w-full h-48 bg-gray-200 animate-pulse" />
-                                    )}
+                            key={post.id + i}
+                            className="group w-[180px] shrink-0 bg-gray-50 rounded-xl shadow relative overflow-hidden cursor-pointer transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                            >
+                            {post.imageUrl ? (
+                                <img
+                                src={post.imageUrl}
+                                className="w-full h-48 object-cover transition duration-300 group-hover:scale-110"
+                                />
+                            ) : (
+                                <div className="w-full h-48 bg-gray-200 animate-pulse" />
+                            )}
 
-                                {post.isPending && (
-                                    <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-                                    NEW
-                                    </span>
-                                )}
+                            {post.isPending && (
+                                <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                                NEW
+                                </span>
+                            )}
 
-                                <div className="p-2 text-sm text-center">
-                                    <span>{post.name}</span>
-                                    <LikeButton
-                                    postId={post.id}
-                                    externalTrigger={triggerMap[post.id] || 0}
-                                    />
-                                </div>
-                                </div>
+                            <div className="p-2 text-sm text-center">
+                                <span>{post.name}</span>
+                                <LikeButton postId={post.id} />
+                            </div>
+                            </div>
                             ))}
                             </div>
                             </div>
