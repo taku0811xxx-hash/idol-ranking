@@ -527,173 +527,167 @@ if (loading) return null;
                 </div>                
               </div>
 
-              {/* 🔥 人気タグ */}
-             {popularTags.length > 0 && (
-                <section className="p-6">
-                    <div className="bg-white rounded-2xl shadow-md p-6">
-                    <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
-                        🔥 人気タグ
-                    </h2>
+              {/* 🔍 検索バー */}
+                <div className="flex justify-center mb-6">
+                <input
+                    type="text"
+                    placeholder="アイドルを検索..."
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    className="border px-4 py-3 rounded-full w-full max-w-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                />
+                </div>
 
-                    <div className="flex flex-wrap gap-3 justify-center">
-                        {popularTags.slice(0, 5).map((tag) => (
+                <div className="p-6">
+                 <div className="flex flex-col md:flex-row gap-6">
+
+                {/* 🏆ランキング */}
+                <div className="flex-[2] bg-white rounded-2xl shadow-md p-6">
+                <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
+                    🏆ランキング
+                </h2>
+
+                <div className="flex justify-center gap-6">
+                    {ranking.slice(0, 3).map((idol, i) => (
+                    <Link
+                        key={i}
+                        href={`/idol/${idol.id}`}
+                        className="text-center hover:scale-105 transition"
+                    >
+                        <img
+                        src={idol.image}
+                        className={`rounded-xl object-cover aspect-[2/3]
+                        ${i === 0 ? "w-32 md:w-40" : "w-24 md:w-32"}`}
+                        />
+                        <div className="mt-2 font-bold text-sm">{idol.name}</div>
+                    </Link>
+                    ))}
+                </div>
+                </div>
+
+                {/* 🔥人気タグ */}
+                <div className="flex-[1] bg-white rounded-2xl shadow-md p-6">
+                <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
+                    🔥人気タグ
+                </h2>
+
+                <div className="flex flex-wrap gap-3 justify-center">
+                    {popularTags.slice(0, 8).map((tag) => (
                     <Link
                         key={tag.name}
-                        href={`/tag/${encodeURIComponent(tag.name)}`}  // ← ✅
-                        className="px-4 py-2 bg-pink-100 text-pink-600 rounded-full text-sm font-medium hover:bg-pink-200 transition"
+                        href={`/tag/${encodeURIComponent(tag.name)}`}
+                        className="px-3 py-1 bg-pink-100 text-pink-600 rounded-full text-sm hover:bg-pink-200 transition"
                     >
                         #{tag.name}
                     </Link>
                     ))}
-                    </div>
-                    </div>
-                </section>
-                )}
+                </div>
+                </div>
 
-              {/* 🔥 タグ検索UI追加 */}
-              <h2 className="font-bold text-xl mb-10 border-b pb-2 text-center">
-                    🔍 タグ検索
-                </h2>
-              <div className="flex flex-wrap gap-2 justify-center mt-6 ">
-                {TAG_OPTIONS.map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => {
-                        if (tag === selectedTag) {
-                        setSelectedTag(null);
-                        setTagRanking([]);
-                        } else {
-                        setSelectedTag(tag);
-                        fetchTagRanking(tag);
-                        }
-                    }}
-                    className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                        selectedTag === tag ? "bg-pink-500 text-white" : "bg-gray-200"
-                    }`}
-                    >
-                    {tag}
-                    </button>
-                ))}
-              </div>
-              {selectedTag && tagRanking.length > 0 && (
-                <motion.section
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="p-6"
-                >
-                    <div className="bg-white rounded-2xl shadow-md p-6">
+            </div>
+        </div>
+        </div>
+
+            {/* 🔽ここから差し替え */}
+                <div className="p-6">
+                <div className="flex flex-col md:flex-row gap-6 items-stretch">
+
+                    {/* 🔍タグ検索 */}
+                    <div className="flex-[2] bg-white rounded-2xl shadow-md p-6">
                     <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
-                        🔥 {selectedTag} 人気ランキング
+                        🔍 タグ検索
                     </h2>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
-                        {tagRanking.slice(0, 5).map((idol,i) => (
-                       <Link href={`/idol/${idol.id}`}>
-                        <motion.div
-                            key={idol.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.05 }}
-                            className="text-center cursor-pointer hover:scale-105 transition"
+                    <div className="flex flex-wrap gap-2 justify-center">
+                        {TAG_OPTIONS.map(tag => (
+                        <button
+                            key={tag}
+                            onClick={() => {
+                            if (tag === selectedTag) {
+                                setSelectedTag(null);
+                                setTagRanking([]);
+                            } else {
+                                setSelectedTag(tag);
+                                fetchTagRanking(tag);
+                            }
+                            }}
+                            className={`px-3 py-1 rounded-full text-sm ${
+                            selectedTag === tag
+                                ? "bg-pink-500 text-white"
+                                : "bg-gray-200"
+                            }`}
                         >
+                            {tag}
+                        </button>
+                        ))}
+                    </div>
+
+                    {selectedTag && tagRanking.length > 0 && (
+                        <div className="mt-6 grid grid-cols-4 md:grid-cols-6 gap-3">
+                        {tagRanking.slice(0, 6).map((idol, i) => (
+                            <Link key={idol.id} href={`/idol/${idol.id}`}>
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.05 }}
+                                className="text-center hover:scale-105 transition"
+                            >
+                                <img
+                                src={idol.image}
+                                className="rounded-xl w-full aspect-[2/3] object-cover"
+                                />
+                                <div className="mt-1 text-xs font-bold">
+                                {idol.name}
+                                </div>
+                            </motion.div>
+                            </Link>
+                        ))}
+                        </div>
+                    )}
+                    </div>
+
+                    {/* ⭐おすすめ */}
+                    <div className="flex-[1] bg-white rounded-2xl shadow-md p-6">
+                    <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
+                        ⭐あなたへのおすすめ
+                    </h2>
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {recommend.slice(0, 6).map((idol) => (
+                        <Link key={idol.id} href={`/idol/${idol.id}`}>
+                        <div className="hover:scale-105 transition text-center">
+
                             <img
                             src={idol.image}
                             className="rounded-xl w-full aspect-[2/3] object-cover"
                             />
-                            <div className="mt-2 text-sm font-bold">
+
+                            <div className="mt-1 text-xs font-bold">
                             {idol.name}
                             </div>
-                            <div className="text-xs text-gray-500">
-                            {idol.count}票
+
+                            {/* 🔥タグ一覧（追加） */}
+                            <div className="mt-1 flex flex-col items-center gap-1">
+                            {idol.tags?.slice(0, 3).map((tag: string) => (
+                                <span
+                                key={tag}
+                                className="text-[10px] bg-pink-100 text-pink-600 px-2 py-[2px] rounded-full"
+                                >
+                                #{tag}
+                                </span>
+                            ))}
                             </div>
-                        </motion.div>
+
+                        </div>
                         </Link>
-                        ))}
-                    </div>
-                    </div>
-                </motion.section>
-                )}
-
-            </div>
-
-            {/* ランキング */}
-            <section ref={rankingRef} className="p-10 flex justify-center">
-              <div className="bg-white rounded-2xl shadow-md px-6 md:px-10 py-6 md:py-8 w-full max-w-xl mx-auto">
-                <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
-                  🏆ランキング
-                </h2>
-
-                <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-                  {ranking.slice(0, 3).map((idol, i) => (
-                    <Link
-                        key={i}
-                        href={`/idol/${idol.id}`}
-                        className="cursor-pointer text-center hover:scale-105 transition"
-                    >
-                        <img
-                        src={idol.image}
-                        className={`object-cover rounded-xl mx-auto aspect-[2/3]
-                            ${i === 0 ? "w-40 md:w-52" : "w-28 md:w-40"}
-                        `}
-                        />
-
-                        <div className="mt-2 font-bold">{idol.name}</div>
-
-                        {i === 0 && (
-                        <div className="text-yellow-500 font-bold text-sm">
-                            👑1位
-                        </div>
-                        )}
-                    </Link>
                     ))}
+                    </div>
+                    </div>
+
                 </div>
-              </div>
-            </section>
-
-            
-
-            {/* おすすめ */}
-             {!user && (
-              <div className="text-center text-sm mb-2 text-gray-500">
-                ログインするとおすすめ精度が上がります
-                <a href="/login" className="text-blue-500 underline ml-2">
-                  ログイン
-                </a>
-              </div>
-            )}
-
-            {user && (
-              <div className="text-center text-sm mb-2 text-pink-500">
-                ログイン中（おすすめ最適化中🔥）
-              </div>
-            )}
-            <section ref={recommendRef} className="p-6">
-              <div className="bg-white rounded-2xl shadow-md p-6">
-                <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
-                  ⭐おすすめ
-                </h2>
-
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                  {recommend.map((idol, i) => (
-                    <Link
-                        key={i}
-                        href={`/idol/${idol.id}`}
-                        className="cursor-pointer hover:scale-105 transition"
-                    >
-                        <img
-                        src={idol.image}
-                        className="rounded-xl w-full aspect-[2/3] object-cover"
-                        />
-
-                        <div className="mt-2 text-sm font-bold text-center">
-                        {idol.name}
-                        </div>
-                    </Link>
-))}
                 </div>
-              </div>
-            </section>
+                {/* 🔼ここまで */}
+
 
             {/* 投票 */}
             <section ref={voteRef} className="p-6">
@@ -979,9 +973,7 @@ if (loading) return null;
 
                 </div>
                 </footer>
-        </main>
-
-        {/* モーダル */}
+                 {/* モーダル */}
         {selectedIdol && (
             <div
                 className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
@@ -1021,6 +1013,7 @@ if (loading) return null;
                 </div>
             </div>
             )}
+        </main>
     </>
   );
 }
