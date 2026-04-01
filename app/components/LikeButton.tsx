@@ -5,16 +5,15 @@ import { toggleLike, checkLiked, getLikeCount } from "@/lib/like";
 
 export default function LikeButton({
   postId,
-  externalTrigger,
 }: {
   postId: string;
-  externalTrigger?: number;
 }) {
   const [liked, setLiked] = useState(false);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [animate, setAnimate] = useState(false);
 
+  // ✅ 初期取得（Firestoreと完全同期）
   useEffect(() => {
     const fetch = async () => {
       const likedResult = await checkLiked(postId);
@@ -27,24 +26,20 @@ export default function LikeButton({
     fetch();
   }, [postId]);
 
+  // ✅ いいね処理（常にFirestore基準）
   const handleLike = async () => {
-  const result = await toggleLike(postId);
-  if (result === undefined) return;
+    const result = await toggleLike(postId);
+    if (result === undefined) return;
 
-  setLiked(result);
+    setLiked(result);
 
-  const newCount = await getLikeCount(postId);
-  setCount(newCount);
+    // 🔥 必ず最新のいいね数を取得
+    const newCount = await getLikeCount(postId);
+    setCount(newCount);
 
-  setAnimate(true);
-  setTimeout(() => setAnimate(false), 300);
-};
-
-  // 🔥 外部トリガー（これ1つだけ）
-  useEffect(() => {
-    if (externalTrigger === undefined) return;
-    handleLike();
-  }, [externalTrigger]);
+    setAnimate(true);
+    setTimeout(() => setAnimate(false), 300);
+  };
 
   if (loading) return null;
 

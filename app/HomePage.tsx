@@ -56,6 +56,7 @@ export default function HomePage() {
     const [success, setSuccess] = useState(false);
 
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -84,11 +85,12 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-    });
-    return () => unsubscribe();
-  }, []);
+  const unsubscribe = onAuthStateChanged(auth, (u) => {
+    setUser(u);
+    setLoading(false); // ← 追加
+  });
+  return () => unsubscribe();
+}, []);
 
   const fetchIdols = async () => {
     const snapshot = await getDocs(collection(db, "idols"));
@@ -102,9 +104,21 @@ export default function HomePage() {
         query(collection(db, "pending_idols"), orderBy("createdAt", "desc"))
     );
 
-    const approvedSnap = await getDocs(
-        query(collection(db, "posts"), orderBy("createdAt", "desc"))
-    );
+    let approved: any[] = [];
+
+        try {
+        const approvedSnap = await getDocs(
+            query(collection(db, "posts"), orderBy("createdAt", "desc"))
+        );
+
+        approved = approvedSnap.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            isPending: false,
+        }));
+        } catch (e) {
+        approved = [];
+        }
 
     const pending = pendingSnap.docs.map((doc) => ({
         id: doc.id,
@@ -112,15 +126,10 @@ export default function HomePage() {
         isPending: true,
     }));
 
-    const approved = approvedSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        isPending: false,
-    }));
-
     const merged = [...pending, ...approved].sort(
-        (a: any, b: any) => b.createdAt.seconds - a.createdAt.seconds
-    );
+        (a: any, b: any) =>
+            (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)
+        );
 
     setPosts(merged);
     };
@@ -353,6 +362,8 @@ const fetchTagRanking = async (tag: string) => {
  const filteredIdols = idols.filter((idol) =>
   (idol.name || "").toLowerCase().includes(keyword.toLowerCase())
 );
+
+if (loading) return null;
 
   return (
     <>
@@ -838,10 +849,14 @@ const fetchTagRanking = async (tag: string) => {
                                 }
                                 className="group w-[180px] shrink-0 bg-gray-50 rounded-xl shadow relative overflow-hidden cursor-pointer transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
                                 >
-                                <img
-                                    src={post.imageUrl}
-                                    className="w-full h-48 object-cover transition duration-300 group-hover:scale-110"
-                                />
+                                {post.imageUrl ? (
+                                    <img
+                                        src={post.imageUrl}
+                                        className="w-full h-48 object-cover transition duration-300 group-hover:scale-110"
+                                    />
+                                    ) : (
+                                    <div className="w-full h-48 bg-gray-200 animate-pulse" />
+                                    )}
 
                                 {post.isPending && (
                                     <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
