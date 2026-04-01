@@ -66,6 +66,18 @@ export default async function IdolDetail({
 
   return (
     <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name: idol.name,
+          image: idol.image,
+          description: idol.bio || "",
+        }),
+      }}
+    />
       {/* ヘッダー */}
       <div className="w-full bg-white shadow fixed top-0 left-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between">
@@ -93,6 +105,10 @@ export default async function IdolDetail({
               </div>
 
               {/* 基本情報 */}
+              <div className="text-sm text-gray-500 mb-2">
+              <Link href="/">TOP</Link> ＞ 
+              <span>{idol.name}</span>
+            </div>
               <div className="flex-1">
                 <h1 className="text-3xl font-bold mb-4">
                   {idol.name}
@@ -176,7 +192,7 @@ export default async function IdolDetail({
                   </p>
                 </div>
 
-            {/* 関連（今後実装） */}
+            {/* 関連 */}
             <div className="mt-10">
               <h2 className="text-xl font-bold mb-4 border-b pb-2">
                 {idol.name}に関連するアイドル

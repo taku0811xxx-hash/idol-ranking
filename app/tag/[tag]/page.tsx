@@ -23,7 +23,7 @@ export async function generateMetadata({
   const decodedTag = decodeURIComponent(tag);
 
   return {
-    title: `${decodedTag}系アイドルランキング | 人気ランキング・プロフィールまとめ`,
+    title: `${decodedTag}系アイドルランキング | 【2026年最新】人気ランキング・プロフィールまとめ`,
     description: `${decodedTag}系の人気グラビアアイドルを一覧で紹介。プロフィールや画像、ランキング情報もまとめてチェックできます。`,
   };
 }
@@ -54,6 +54,20 @@ export default async function TagPage({
 
   return (
     <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          itemListElement: idols.map((idol: any, index: number) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: idol.name,
+          })),
+        }),
+      }}
+    />
       {/* ================= ヘッダー ================= */}
       <div className="w-full bg-white shadow fixed top-0 left-0 z-50">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between">
@@ -68,14 +82,31 @@ export default async function TagPage({
         <div className="max-w-5xl mx-auto p-6">
 
           {/* タイトル */}
+          <div className="text-sm text-gray-500 mb-2">
+            <Link href="/">TOP</Link> ＞ 
+            <span>{decodedTag}</span>
+          </div>
           <h1 className="text-3xl font-bold mb-2 text-gray-800">
-            {decodedTag}のアイドル一覧
+            "{decodedTag}"タグのアイドル一覧
           </h1>
 
           <p className="text-gray-600 mb-6">
-            {decodedTag}系の特徴を持つ人気アイドルを一覧で紹介しています。
-            プロフィールや画像、ユーザー評価をもとにランキング形式で掲載しています。
+          {decodedTag}系の人気アイドルをランキング形式で紹介しています。
+          ユーザー投票や注目度をもとに、今人気のアイドルが一目で分かります。
+          {decodedTag}が好きな方におすすめの一覧ページです。
           </p>
+
+          <div className="flex flex-wrap gap-2 mb-6">
+          {["可愛い系", "清楚", "セクシー", "巨乳"].map((tag) => (
+            <Link
+              key={tag}
+              href={`/tag/${encodeURIComponent(tag)}`}
+              className="bg-pink-100 text-pink-600 px-2 py-1 rounded text-xs"
+            >
+              #{tag}
+            </Link>
+          ))}
+        </div>
 
           {/* 件数 */}
           <p className="mb-4 text-sm text-gray-600">
@@ -96,7 +127,7 @@ export default async function TagPage({
                 key={idol.id}
                 className="bg-white rounded-xl shadow hover:shadow-lg transition p-3 flex flex-col"
               >
-                <a href={`/idol/${idol.id}`}>
+                <Link href={`/idol/${idol.id}`}>
                   <img
                     src={idol.image}
                     alt={idol.name}
@@ -105,7 +136,7 @@ export default async function TagPage({
                   <p className="mt-3 text-center font-semibold text-gray-800">
                     {idol.name}
                   </p>
-                </a>
+                </Link>
               </div>
             ))}
           </div>
