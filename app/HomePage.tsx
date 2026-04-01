@@ -384,17 +384,19 @@ if (loading) return null;
       {/* ヘッダー */}
       <div className="w-full h-16 bg-white shadow-sm fixed top-0 left-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 pt-3 pb-5">
+            {/* 左：タイトル */}
+            <div className="flex items-center gap-2">
             <button
-            onClick={() => setIsOpen(true)}
-            className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded shadow"
+                onClick={() => setIsOpen(true)}
+                className="md:hidden"
             >
-            ☰
+                ☰
             </button>
 
-            {/* 左：タイトル */}
-            <a href="/" className="text-2xl font-bold text-pink-500 cursor-pointer">
-            Idol Ranking
-            </a>
+            <Link href="/" className="text-2xl font-bold text-pink-500">
+                Idol Ranking
+            </Link>
+            </div>
 
             {/* 右：ログイン系 */}
             <div className="flex items-center gap-4 text-sm">
@@ -502,7 +504,7 @@ if (loading) return null;
 
         {/* サイドバー */}
             <div
-            className={`md:hidden fixed top-0 left-0 h-full w-[80%] max-w-xs bg-white shadow-lg z-50 transform transition-transform duration-300
+            className={`md:hidden mr-2 fixed top-0 left-0 h-full w-[80%] max-w-xs bg-white shadow-lg z-50 transform transition-transform duration-300
             ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
             <button
