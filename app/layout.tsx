@@ -5,9 +5,9 @@ import Script from "next/script";
 import GA from "./GA";
 
 export const metadata: Metadata = {
-  title: "ランキング｜人気投票サイト",
+  title: "アイドルランキング｜人気投票サイト",
   description:
-    "人気アイドルをランキング形式で紹介。投票で順位が変動する参加型サイト。",
+    "人気アイドルをランキング形式で紹介。投票で順位が変わる参加型サイト。",
   keywords: ["グラビア", "アイドル", "ランキング", "人気", "投票"],
   verification: {
     google: "78uSALJmInWnO_vLJV0TI9nJujf_UxHyfjnjgEJ8958",

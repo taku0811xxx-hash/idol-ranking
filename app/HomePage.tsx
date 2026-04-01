@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Trophy, Star, Home, ImagePlus } from "lucide-react";
 import { db, uploadImage, auth } from "../firebase";
+import LikeButton from "@/app/components/LikeButton";
 import Link from "next/link";
 import {
   collection,
@@ -17,14 +18,17 @@ import { onAuthStateChanged } from "firebase/auth";
 import { playfair, noto } from "./fonts";
 import { signOut } from "firebase/auth";
 // 🔥 追加（検索用）
-import { query, where } from "firebase/firestore";
+import { query, where,orderBy } from "firebase/firestore";
 import { motion } from "framer-motion";
 
 export default function HomePage() {
   const [idols, setIdols] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [ranking, setRanking] = useState<any[]>([]);
   const [recommend, setRecommend] = useState<any[]>([]);
   const [selectedIdol, setSelectedIdol] = useState<any | null>(null);
+  const [triggerMap, setTriggerMap] = useState<{ [key: string]: number }>({});
+
 //   人気タグ
   const [popularTags, setPopularTags] = useState<any[]>([]);
   const fetchPopularTags = async () => {
@@ -92,6 +96,90 @@ export default function HomePage() {
     snapshot.forEach((doc) => list.push({ id: doc.id, ...doc.data() }));
     setIdols(list);
   };
+
+    const fetchPosts = async () => {
+    const pendingSnap = await getDocs(
+        query(collection(db, "pending_idols"), orderBy("createdAt", "desc"))
+    );
+
+    const approvedSnap = await getDocs(
+        query(collection(db, "posts"), orderBy("createdAt", "desc"))
+    );
+
+    const pending = pendingSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        isPending: true,
+    }));
+
+    const approved = approvedSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        isPending: false,
+    }));
+
+    const merged = [...pending, ...approved].sort(
+        (a: any, b: any) => b.createdAt.seconds - a.createdAt.seconds
+    );
+
+    setPosts(merged);
+    };
+
+    const sliderRef = useRef<HTMLDivElement | null>(null);
+    const innerRef = useRef<HTMLDivElement | null>(null);
+    const handleUserRef = useRef<() => void>(() => {});
+    const posRef = useRef(0);
+
+    useEffect(() => {
+        if (!sliderRef.current || !innerRef.current || posts.length === 0) return;
+
+        const container = sliderRef.current;
+        const inner = innerRef.current;
+
+        let animationId: number;
+        let pos = container.scrollLeft;
+        let isPaused = false;
+        let isUserInteracting = false;
+
+        const scroll = () => {
+            if (!isPaused && !isUserInteracting) {
+                posRef.current += 0.5;
+                    container.scrollLeft = posRef.current;
+
+                    if (!isUserInteracting && posRef.current >= inner.scrollWidth / 2) {
+                    posRef.current = 0;
+                    }
+            }
+
+            animationId = requestAnimationFrame(scroll);
+            };
+            handleUserRef.current = () => {
+            isUserInteracting = true;
+
+            setTimeout(() => {
+                isUserInteracting = false;
+            }, 2000);
+            };
+
+        const handleMouseEnter = () => (isPaused = true);
+        const handleMouseLeave = () => (isPaused = false);
+
+        container.addEventListener("mouseenter", handleMouseEnter);
+        container.addEventListener("mouseleave", handleMouseLeave);
+
+        scroll();
+
+        return () => {
+            cancelAnimationFrame(animationId);
+            container.removeEventListener("mouseenter", handleMouseEnter);
+            container.removeEventListener("mouseleave", handleMouseLeave);
+        };
+        }, [posts.length]);
+
+    useEffect(() => {
+          fetchPosts();
+        }, []);
+
   // 🔥 追加（タグランキング取得）
 const fetchTagRanking = async (tag: string) => {
   const snapshot = await getDocs(
@@ -691,6 +779,90 @@ const fetchTagRanking = async (tag: string) => {
 
                     </div>
                 </div>
+                </section>
+
+                {/* 投稿スライド */}
+                <section className="p-6">
+                <div className="bg-white rounded-2xl shadow-md p-4">
+                    <h2 className="font-bold text-xl mb-4 text-center">
+                    🆕 投稿一覧
+                    </h2>
+
+                    <div className="relative">
+
+                        {/* ← 左ボタン */}
+                        <button
+                            onClick={() => {
+                            if (!sliderRef.current) return;
+
+                            const cardWidth = 180 + 16; // カード幅 + gap
+
+                            handleUserRef.current();
+
+                            posRef.current += cardWidth;
+                            sliderRef.current.scrollLeft = posRef.current;
+                            }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 backdrop-blur px-3 py-2 rounded-full shadow hover:bg-white"
+                        >
+                            ◀
+                        </button>
+
+                        {/* → 右ボタン */}
+                        <button
+                            onClick={() => {
+                            if (!sliderRef.current) return;
+
+                            const cardWidth = 180 + 16; // カード幅 + gap
+
+                            handleUserRef.current();
+
+                            posRef.current += cardWidth;
+                            sliderRef.current.scrollLeft = posRef.current;
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 backdrop-blur px-3 py-2 rounded-full shadow hover:bg-white"
+                        >
+                            ▶
+                        </button>
+
+                        {/* スライド */}
+                        <div ref={sliderRef} className="overflow-x-auto">
+                            <div ref={innerRef} className="flex gap-4 w-max">
+                            {[...posts, ...posts].map((post, i) => (
+                                <div
+                                key={post.id + i}
+                                onClick={() =>
+                                    setTriggerMap((prev) => ({
+                                    ...prev,
+                                    [post.id]: (prev[post.id] || 0) + 1,
+                                    }))
+                                }
+                                className="group w-[180px] shrink-0 bg-gray-50 rounded-xl shadow relative overflow-hidden cursor-pointer transition duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                                >
+                                <img
+                                    src={post.imageUrl}
+                                    className="w-full h-48 object-cover transition duration-300 group-hover:scale-110"
+                                />
+
+                                {post.isPending && (
+                                    <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                                    NEW
+                                    </span>
+                                )}
+
+                                <div className="p-2 text-sm text-center">
+                                    <span>{post.name}</span>
+                                    <LikeButton
+                                    postId={post.id}
+                                    externalTrigger={triggerMap[post.id] || 0}
+                                    />
+                                </div>
+                                </div>
+                            ))}
+                            </div>
+                            </div>
+                        </div>
+
+                        </div>
                 </section>
 
           </div>
