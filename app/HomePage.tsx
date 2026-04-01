@@ -29,6 +29,7 @@ export default function HomePage() {
   const [selectedIdol, setSelectedIdol] = useState<any | null>(null);
   const [triggerMap, setTriggerMap] = useState<{ [key: string]: number }>({});
  const [showTags, setShowTags] = useState(false);
+ const [isOpen, setIsOpen] = useState(false);
 
 //   人気タグ
 const [popularTags, setPopularTags] = useState<any[]>([]);
@@ -383,6 +384,12 @@ if (loading) return null;
       {/* ヘッダー */}
       <div className="w-full h-16 bg-white shadow-sm fixed top-0 left-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 pt-3 pb-5">
+            <button
+            onClick={() => setIsOpen(true)}
+            className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded shadow"
+            >
+            ☰
+            </button>
 
             {/* 左：タイトル */}
             <a href="/" className="text-2xl font-bold text-pink-500 cursor-pointer">
@@ -422,9 +429,10 @@ if (loading) return null;
         </div>
       <div className="h-16"></div>
 
-        {/* サイドバー */}
-       <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-56 bg-white border-r p-4 z-10 overflow-y-auto">
-            <div className="font-bold text-lg mb-6">MENU</div>
+      {/* PC用サイドバー */}
+<aside className="hidden md:block fixed left-0 top-16 h-[calc(100vh-4rem)] w-56 bg-white border-r p-4 z-10 overflow-y-auto">
+    <div className="p-4 space-y-4 text-sm">
+                <div className="font-bold text-lg mb-6">MENU</div>
 
             <div className="space-y-4 text-sm">
 
@@ -489,10 +497,99 @@ if (loading) return null;
                 運営者情報
                 </Link>
             </div>
-            </aside>
+            </div>
+</aside>
+
+        {/* サイドバー */}
+            <div
+            className={`md:hidden fixed top-0 left-0 h-full w-[80%] max-w-xs bg-white shadow-lg z-50 transform transition-transform duration-300
+            ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+            >
+            <button
+                onClick={() => setIsOpen(false)}
+                className="p-4 text-lg"
+            >
+                ✕
+            </button>
+
+            <div className="p-4 space-y-4 text-sm">
+                <div className="font-bold text-lg mb-6">MENU</div>
+
+            <div className="space-y-4 text-sm">
+
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <Trophy size={16}/> ランキング
+                </Link>
+
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <Star size={16}/> おすすめ
+                </Link>
+
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <Home size={16}/> 投票
+                </Link>
+
+                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
+                <ImagePlus size={16}/> 投稿
+                </Link>
+
+                {/* タグメニュー */}
+                <div className="mt-6">
+                <button
+                    onClick={() => setShowTags(!showTags)}
+                    className="font-bold text-sm mb-2 flex items-center gap-2 hover:text-pink-500 transition"
+                >
+                    タグ {showTags ? "▲" : "▼"}
+                </button>
+
+                {showTags && (
+                    <div className="space-y-2 mt-2">
+                    {popularTags.map((tag) => (
+                        <Link
+                        key={tag.name}
+                        href={`/tag/${encodeURIComponent(tag.name)}`}
+                        className="block text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded hover:bg-pink-200 transition"
+                        >
+                        #{tag.name}
+                        </Link>
+                    ))}
+                    </div>
+                )}
+                </div>
+
+                {/* 👇 ここ追加 */}
+                <Link href="/register" className="flex gap-2 hover:text-pink-500 transition">
+                会員登録
+                </Link>
+
+                <Link href="/login" className="flex gap-2 hover:text-pink-500 transition">
+                ログイン
+                </Link>
+
+                <Link href="/privacy" className="flex gap-2 hover:text-pink-500 transition">
+                プライバシーポリシー
+                </Link>
+
+                <Link href="/contact" className="flex gap-2 hover:text-pink-500 transition">
+                お問い合わせ
+                </Link>
+
+                <Link href="/about" className="flex gap-2 hover:text-pink-500 transition">
+                運営者情報
+                </Link>
+            </div>
+            </div>
+            </div>
+
+            {isOpen && (
+            <div
+                onClick={() => setIsOpen(false)}
+                className="fixed inset-0 bg-black/30 z-40"
+            />
+            )}
 
         {/* ⭐ レイアウト修正 */}
-        <main className="flex-1 md:ml-56 mt-0 flex flex-col">
+        <main className="flex-1 md:ml-56">
 
           {/* コンテンツ */}
           <div className="flex-grow">
