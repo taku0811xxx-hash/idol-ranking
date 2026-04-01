@@ -24,3 +24,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+body {
+  background: linear-gradient(
+    135deg,
+    #fff0f6,
+    #f5f3ff,
+    #ffffff
+  );
+  min-height: 100vh;
+}
