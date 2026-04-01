@@ -179,8 +179,11 @@ export default async function IdolDetail({
             {/* 関連（今後実装） */}
             <div className="mt-10">
               <h2 className="text-xl font-bold mb-4 border-b pb-2">
-                関連アイドル
+                {idol.name}に関連するアイドル
               </h2>
+              <p className="text-sm text-gray-600 mb-4">
+              {idol.name}と同じジャンルや特徴を持つ人気アイドルを紹介します。
+            </p>
 
               <div className="text-gray-500 text-sm">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -189,6 +192,7 @@ export default async function IdolDetail({
                     <div className="cursor-pointer">
                         <img
                             src={item.image}
+                            alt={`${item.name}の画像`}
                             className="rounded-lg w-full h-64 object-cover object-top"
                             />
                         <div className="text-sm mt-1 text-center">
