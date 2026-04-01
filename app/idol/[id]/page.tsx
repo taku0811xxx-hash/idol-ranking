@@ -5,6 +5,7 @@ import { generateAppeal } from "@/lib/generateAppeal";
 import ProposalForm from "@/app/components/ProposalForm";
 import { getRelatedIdols } from "@/lib/getRelatedIdols";
 import IdolComment from "@/app/components/IdolComment";
+import { generateSEOText } from "@/lib/generateSEOText";
 
 // ==============================
 // SEO（metadata）
@@ -163,6 +164,17 @@ export default async function IdolDetail({
                 </div>
 
                 <IdolComment idolId={decodedId} />
+
+                {/* SEOテキスト */}
+                <div className="mt-10">
+                  <h2 className="text-xl font-bold mb-2 border-b pb-2">
+                    {idol.name}について
+                  </h2>
+
+                  <p className="text-gray-700 leading-relaxed mt-3 whitespace-pre-line">
+                    {generateSEOText(idol)}
+                  </p>
+                </div>
 
             {/* 関連（今後実装） */}
             <div className="mt-10">
