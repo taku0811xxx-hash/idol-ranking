@@ -23,8 +23,8 @@ export async function generateMetadata({
   const decodedTag = decodeURIComponent(tag);
 
   return {
-    title: `${decodedTag}系グラビアアイドルランキング`,
-    description: `${decodedTag}系の人気グラビアアイドルを一覧で紹介`,
+    title: `${decodedTag}系アイドルランキング | 人気ランキング・プロフィールまとめ`,
+    description: `${decodedTag}系の人気グラビアアイドルを一覧で紹介。プロフィールや画像、ランキング情報もまとめてチェックできます。`,
   };
 }
 
@@ -50,6 +50,7 @@ export default async function TagPage({
     id: doc.id,
     ...doc.data(),
   }));
+  
 
   return (
     <>
@@ -68,11 +69,12 @@ export default async function TagPage({
 
           {/* タイトル */}
           <h1 className="text-3xl font-bold mb-2 text-gray-800">
-            {decodedTag}のグラビアアイドル一覧
+            {decodedTag}のアイドル一覧
           </h1>
 
-          <p className="text-gray-500 mb-6">
-            {decodedTag}系の人気グラビアアイドルをまとめています
+          <p className="text-gray-600 mb-6">
+            {decodedTag}系の特徴を持つ人気アイドルを一覧で紹介しています。
+            プロフィールや画像、ユーザー評価をもとにランキング形式で掲載しています。
           </p>
 
           {/* 件数 */}

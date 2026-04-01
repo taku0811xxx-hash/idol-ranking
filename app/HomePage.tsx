@@ -28,25 +28,37 @@ export default function HomePage() {
   const [recommend, setRecommend] = useState<any[]>([]);
   const [selectedIdol, setSelectedIdol] = useState<any | null>(null);
   const [triggerMap, setTriggerMap] = useState<{ [key: string]: number }>({});
+ const [showTags, setShowTags] = useState(false);
 
 //   人気タグ
-  const [popularTags, setPopularTags] = useState<any[]>([]);
-  const fetchPopularTags = async () => {
-  const snapshot = await getDocs(collection(db, "tags"));
+const [popularTags, setPopularTags] = useState<any[]>([]);
 
-    const list: any[] = [];
-        snapshot.forEach((doc) => {
-            list.push({ name: doc.id, ...doc.data() });
-        });
+const fetchPopularTags = async () => {
+  const snapshot = await getDocs(collection(db, "idols"));
 
-        list.sort((a, b) => b.count - a.count);
+  const tagCount: { [key: string]: number } = {};
 
-            setPopularTags(list);
-            };
-    useEffect(() => {
+  snapshot.forEach((doc) => {
+    const tags = doc.data().tags || [];
+
+    tags.forEach((tag: string) => {
+      tagCount[tag] = (tagCount[tag] || 0) + 1;
+    });
+  });
+
+  const list = Object.entries(tagCount).map(([name, count]) => ({
+    name,
+    count,
+  }));
+
+  list.sort((a, b) => b.count - a.count);
+
+  setPopularTags(list);
+};
+
+useEffect(() => {
   fetchPopularTags();
 }, []);
-//人気タグ
 
   const logout = async () => {
   await signOut(auth);
@@ -369,7 +381,7 @@ if (loading) return null;
   return (
     <>
       {/* ヘッダー */}
-      <div className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
+      <div className="w-full h-16 bg-white shadow-sm fixed top-0 left-0 z-50">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 pt-3 pb-5">
 
             {/* 左：タイトル */}
@@ -408,13 +420,10 @@ if (loading) return null;
         </div>
         
         </div>
-      <div className="h-10"></div>
-
-      {/* ⭐ 高さ問題の根本解決 */}
-      <div className="bg-gradient-to-br from-pink-50 via-white to-purple-50 mt-6 min-h-screen">
+      <div className="h-16"></div>
 
         {/* サイドバー */}
-       <aside className="hidden md:block fixed left-0 top-15 h-screen w-56 bg-white/80 backdrop-blur border-r p-4 z-40">
+       <aside className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-56 bg-white border-r p-4 z-10 overflow-y-auto">
             <div className="font-bold text-lg mb-6">MENU</div>
 
             <div className="space-y-4 text-sm">
@@ -434,6 +443,30 @@ if (loading) return null;
                 <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
                 <ImagePlus size={16}/> 投稿
                 </Link>
+
+                {/* タグメニュー */}
+                <div className="mt-6">
+                <button
+                    onClick={() => setShowTags(!showTags)}
+                    className="font-bold text-sm mb-2 flex items-center gap-2 hover:text-pink-500 transition"
+                >
+                    タグ {showTags ? "▲" : "▼"}
+                </button>
+
+                {showTags && (
+                    <div className="space-y-2 mt-2">
+                    {popularTags.map((tag) => (
+                        <Link
+                        key={tag.name}
+                        href={`/tag/${encodeURIComponent(tag.name)}`}
+                        className="block text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded hover:bg-pink-200 transition"
+                        >
+                        #{tag.name}
+                        </Link>
+                    ))}
+                    </div>
+                )}
+                </div>
 
                 {/* 👇 ここ追加 */}
                 <Link href="/register" className="flex gap-2 hover:text-pink-500 transition">
@@ -455,22 +488,21 @@ if (loading) return null;
                 <Link href="/about" className="flex gap-2 hover:text-pink-500 transition">
                 運営者情報
                 </Link>
-
             </div>
             </aside>
 
         {/* ⭐ レイアウト修正 */}
-        <main className="flex-1 md:ml-56 mt-6 flex flex-col">
+        <main className="flex-1 md:ml-56 mt-0 flex flex-col">
 
           {/* コンテンツ */}
           <div className="flex-grow">
 
             {/* タイトル */}
-            <div className="p-4 md:p-10 text-center mb-10">
+            <div className="p-4 md:p-10 text-center mb-5">
 
               <div className="w-full max-w-xl mx-auto px-6 py-6 md:px-10 md:py-8 rounded-2xl
                 bg-gradient-to-br from-pink-50 via-white to-purple-50
-                border border-pink-200 shadow-md mb-15">
+                border border-pink-200 shadow-md mb-5">
 
                 <h1
                   className={`${playfair.className} 
@@ -495,6 +527,7 @@ if (loading) return null;
                 </div>                
               </div>
 
+              {/* 🔥 人気タグ */}
              {popularTags.length > 0 && (
                 <section className="p-6">
                     <div className="bg-white rounded-2xl shadow-md p-6">
@@ -503,19 +536,20 @@ if (loading) return null;
                     </h2>
 
                     <div className="flex flex-wrap gap-3 justify-center">
-                        {popularTags.slice(0, 20).map((tag, i) => (
-                        <Link
-                            key={i}
-                            href={`/tag/${tag.name}`}
-                            className="px-4 py-2 bg-pink-100 text-pink-600 rounded-full text-sm font-medium hover:bg-pink-200 transition"
-                        >
-                            #{tag.name}
-                        </Link>
-                        ))}
+                        {popularTags.slice(0, 5).map((tag) => (
+                    <Link
+                        key={tag.name}
+                        href={`/tag/${encodeURIComponent(tag.name)}`}  // ← ✅
+                        className="px-4 py-2 bg-pink-100 text-pink-600 rounded-full text-sm font-medium hover:bg-pink-200 transition"
+                    >
+                        #{tag.name}
+                    </Link>
+                    ))}
                     </div>
                     </div>
                 </section>
                 )}
+
               {/* 🔥 タグ検索UI追加 */}
               <h2 className="font-bold text-xl mb-10 border-b pb-2 text-center">
                     🔍 タグ検索
@@ -583,21 +617,6 @@ if (loading) return null;
 
             </div>
 
-            {!user && (
-              <div className="text-center text-sm mb-2 text-gray-500">
-                ログインするとおすすめ精度が上がります
-                <a href="/login" className="text-blue-500 underline ml-2">
-                  ログイン
-                </a>
-              </div>
-            )}
-
-            {user && (
-              <div className="text-center text-sm mb-2 text-pink-500">
-                ログイン中（おすすめ最適化中🔥）
-              </div>
-            )}
-
             {/* ランキング */}
             <section ref={rankingRef} className="p-10 flex justify-center">
               <div className="bg-white rounded-2xl shadow-md px-6 md:px-10 py-6 md:py-8 w-full max-w-xl mx-auto">
@@ -632,7 +651,23 @@ if (loading) return null;
               </div>
             </section>
 
+            
+
             {/* おすすめ */}
+             {!user && (
+              <div className="text-center text-sm mb-2 text-gray-500">
+                ログインするとおすすめ精度が上がります
+                <a href="/login" className="text-blue-500 underline ml-2">
+                  ログイン
+                </a>
+              </div>
+            )}
+
+            {user && (
+              <div className="text-center text-sm mb-2 text-pink-500">
+                ログイン中（おすすめ最適化中🔥）
+              </div>
+            )}
             <section ref={recommendRef} className="p-6">
               <div className="bg-white rounded-2xl shadow-md p-6">
                 <h2 className="font-bold text-xl mb-6 border-b pb-2 text-center">
@@ -986,7 +1021,6 @@ if (loading) return null;
                 </div>
             </div>
             )}
-      </div>
     </>
   );
 }
