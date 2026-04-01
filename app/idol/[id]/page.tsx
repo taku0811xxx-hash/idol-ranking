@@ -29,7 +29,12 @@ export async function generateMetadata({
   const idol = docSnap.data();
   return {
     title: `${idol.name}｜プロフィール・年齢・身長・人気ランキング`,
-    description: `${idol.name}のプロフィール、年齢、身長、カップ数、経歴、画像、人気ランキング情報を掲載。`,
+    description: `${idol.name}のプロフィールや魅力、年齢や身長などの情報、人気ランキングや画像をまとめて紹介しています。`,
+    openGraph: {
+    title: `${idol.name}｜アイドルランキング`,
+    description: `${idol.name}の魅力やプロフィールをチェック`,
+    images: [idol.image],
+  },
   };
 }
 
