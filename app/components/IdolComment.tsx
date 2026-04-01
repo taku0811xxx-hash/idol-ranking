@@ -39,49 +39,44 @@ export default function IdolComment({ idolId }: { idolId: string }) {
   }, [idolId]);
 
   const submit = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      alert("ログインしてください");
-      return;
-    }
+  const user = auth.currentUser;
+  const trimmed = text.trim();
 
-    const trimmed = text.trim();
+  // 🔥 空チェック
+  if (!trimmed) return;
 
-    // 🔥 空チェック
-    if (!trimmed) return;
+  // 🔥 NGワード
+  if (containsNG(trimmed)) {
+    alert("不適切な表現が含まれています");
+    return;
+  }
 
-    // 🔥 NGワードチェック
-    if (containsNG(trimmed)) {
-      alert("不適切な表現が含まれています");
-      return;
-    }
+  // 🔥 文字数制限
+  if (trimmed.length > 100) {
+    alert("100文字以内で入力してください");
+    return;
+  }
 
-    // 🔥 文字数制限
-    if (trimmed.length > 100) {
-      alert("100文字以内で入力してください");
-      return;
-    }
+  // 🔥 連投防止
+  const last = localStorage.getItem("lastCommentTime");
+  if (last && Date.now() - Number(last) < 5000) {
+    alert("連続投稿は少し待ってください");
+    return;
+  }
 
-    // 🔥 連投防止（5秒）
-    const last = localStorage.getItem("lastCommentTime");
-    if (last && Date.now() - Number(last) < 5000) {
-      alert("連続投稿は少し待ってください");
-      return;
-    }
+  localStorage.setItem("lastCommentTime", Date.now().toString());
 
-    localStorage.setItem("lastCommentTime", Date.now().toString());
+  // 🔥 投稿（未ログインOK）
+  await addDoc(collection(db, "idol_comments"), {
+    idolId,
+    userId: user?.uid || "guest",
+    text: trimmed,
+    createdAt: serverTimestamp(),
+  });
 
-    // 投稿
-    await addDoc(collection(db, "idol_comments"), {
-      idolId,
-      userId: user.uid,
-      text: trimmed,
-      createdAt: serverTimestamp(),
-    });
-
-    setText("");
-    fetchComments();
-  };
+  setText("");
+  fetchComments();
+};
 
   return (
     <div className="mt-10">
