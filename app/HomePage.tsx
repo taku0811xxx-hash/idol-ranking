@@ -329,6 +329,7 @@ const fetchTagRanking = async (tag: string) => {
     await addDoc(collection(db, "pending_idols"), {
       name,
       imageUrl,
+      type:"update",
       createdAt: serverTimestamp(),
     });
 

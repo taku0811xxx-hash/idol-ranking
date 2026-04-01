@@ -9,6 +9,8 @@ import {
   setDoc,
 } from "firebase/firestore";
 
+import {getDoc} from "firebase/firestore"
+
 import { db, uploadImage } from "../../firebase";
 import { increment } from "firebase/firestore";
 
@@ -26,6 +28,7 @@ export default function AdminPage() {
   const [file, setFile] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [proposals, setProposals] = useState<any[]>([]);
 
 const [form, setForm] = useState({
     name: "",
@@ -42,6 +45,17 @@ const [form, setForm] = useState({
     catch: "",        // ←追加
     tags: "",
   });
+
+  const fetchProposals = async () => {
+  const snapshot = await getDocs(collection(db, "proposals"));
+  const list: any[] = [];
+
+  snapshot.forEach((docItem) => {
+    list.push({ id: docItem.id, ...docItem.data() });
+  });
+
+  setProposals(list);
+};
 
   useEffect(() => {
     const password = prompt("パスワード入力");
@@ -67,11 +81,12 @@ const [form, setForm] = useState({
   };
 
   useEffect(() => {
-    if (isAuth) {
-      fetchIdols();
-      fetchPending();
-    }
-  }, [isAuth]);
+  if (isAuth) {
+    fetchIdols();
+    fetchPending();
+    fetchProposals(); // ←追加
+  }
+}, [isAuth]);
 
   const toggleTag = (tag: string) => {
     const current = form.tags ? form.tags.split(",").map(t=>t.trim()) : [];
@@ -188,40 +203,47 @@ const loadPending = (item:any) => {
     catch: "",
   });
 };
-
+  const normalize = (name: string) => {
+  return name.trim().toLowerCase();
+};
   const approve = async (item:any) => {
     let imageUrl = form.image || item.imageUrl;
     if (file) imageUrl = await uploadImage(file);
 
-    await setDoc(doc(db,"idols",(form.name||item.name).trim()),{
-      ...form,
-      name: form.name || item.name,
-      image: imageUrl,
-      tags: form.tags ? form.tags.split(",").map(t=>t.trim()) : [],
-    });
+    const name = normalize(form.name || item.name);
+    const idolRef = doc(db, "idols", name);
 
-    const tags = form.tags
-  ? form.tags.split(",").map(t => t.trim())
-  : [];
+    const existing = await getDoc(idolRef);
 
-    // 🔥 ここ追加（タグ集計）
-  for (const tag of tags) {
-    const ref = doc(db, "tags", tag);
+    if (existing.exists()) {
+      // 🔥 既存 → 画像更新
+      await setDoc(
+        idolRef,
+        {
+          image: imageUrl,
+        },
+        { merge: true }
+      );
 
-    await setDoc(
-      ref,
-      { count: increment(1) },
-      { merge: true }
-    );
-  }
+      alert("画像を更新した🔥");
+    } else {
+      // 🔥 新規
+      await setDoc(idolRef, {
+        ...form,
+        name,
+        image: imageUrl,
+        tags: form.tags ? form.tags.split(",").map(t=>t.trim()) : [],
+      });
+
+      alert("追加した🔥");
+    }
 
     await deleteDoc(doc(db,"pending_idols",item.id));
-    alert("承認した🔥");
+
     resetForm();
     fetchIdols();
     fetchPending();
   };
-
   const reject = async (id:string) => {
     await deleteDoc(doc(db,"pending_idols",id));
     fetchPending();
@@ -232,6 +254,34 @@ const loadPending = (item:any) => {
     await deleteDoc(doc(db,"idols",id));
     fetchIdols();
   };
+
+      const approveProposal = async (item: any) => {
+      const idolRef = doc(db, "idols", item.idolId);
+
+      // 🔥 appeal更新
+      await setDoc(
+        idolRef,
+        {
+          appeal: item.content,
+        },
+        { merge: true }
+      );
+
+      // 🔥 ステータス変更
+      await setDoc(
+        doc(db, "proposals", item.id),
+        { status: "approved" },
+        { merge: true }
+      );
+
+      alert("提案を反映した🔥");
+      fetchProposals();
+    };
+
+    const rejectProposal = async (id: string) => {
+      await deleteDoc(doc(db, "proposals", id));
+      fetchProposals();
+    };
 
   if (!isAuth) return <div className="p-6">認証中...</div>;
 
@@ -251,10 +301,13 @@ const loadPending = (item:any) => {
           <h2 className="font-bold mt-6 mb-2">承認待ち</h2>
 
           <div className="space-y-2 mb-6">
-            {pending.map(item=>(
+            {pending.map(item=>(  
               <div key={item.id} className="border p-3 rounded-xl">
                 <img src={item.imageUrl} className="w-32 h-32 object-cover mb-2 rounded" />
                 <div>{item.name}</div>
+                <div className="text-xs text-gray-400">
+                {item.type === "update" ? "画像改善投稿" : "新規投稿"}
+              </div>
 
                 <div className="flex gap-2 mt-2">
                   <button onClick={()=>loadPending(item)} className="text-blue-500 cursor-pointer hover:opacity-70">編集</button>
@@ -395,7 +448,41 @@ const loadPending = (item:any) => {
             </button>
 
           </div>
+
+          <h2 className="font-bold mt-6 mb-2">提案（改善案）</h2>
+
+      <div className="space-y-2 mb-6">
+        {proposals.map((item) => (
+          <div key={item.id} className="border p-3 rounded-xl">
+            <div className="text-sm text-gray-500 mb-1">
+              対象：{item.idolId}
+            </div>
+
+            <div className="text-sm mb-2">
+              {item.content}
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => approveProposal(item)}
+                className="text-green-500 cursor-pointer hover:opacity-70"
+              >
+                承認
+              </button>
+
+              <button
+                onClick={() => rejectProposal(item.id)}
+                className="text-red-500 cursor-pointer hover:opacity-70"
+              >
+                却下
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
         </div>
+
+        
 
         {/* 右 */}
         <div className="w-1/2 h-[80vh] overflow-y-auto">

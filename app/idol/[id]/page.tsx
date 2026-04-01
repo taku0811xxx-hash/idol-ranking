@@ -4,6 +4,7 @@ import Link from "next/link";
 import { generateAppeal } from "@/lib/generateAppeal";
 import ProposalForm from "@/app/components/ProposalForm";
 import { getRelatedIdols } from "@/lib/getRelatedIdols";
+import IdolComment from "@/app/components/IdolComment";
 
 // ==============================
 // SEO（metadata）
@@ -155,6 +156,8 @@ export default async function IdolDetail({
                 </p>
                 <ProposalForm idolId={decodedId} />
                 </div>
+
+                <IdolComment idolId={decodedId} />
 
             {/* 関連（今後実装） */}
             <div className="mt-10">
