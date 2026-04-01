@@ -30,6 +30,7 @@ export default function HomePage() {
   const [triggerMap, setTriggerMap] = useState<{ [key: string]: number }>({});
  const [showTags, setShowTags] = useState(false);
  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
 //   人気タグ
 const [popularTags, setPopularTags] = useState<any[]>([]);
@@ -388,215 +389,6 @@ if (loading) return null;
 
   return (
     <>
-      {/* ヘッダー */}
-      <div className="w-full h-16 bg-white shadow-sm fixed top-0 left-0 z-50">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 pt-3 pb-5">
-            {/* 左：タイトル */}
-            <div className="flex items-center gap-2">
-            <button
-                onClick={() => setIsOpen(true)}
-                className="md:hidden"
-            >
-                ☰
-            </button>
-
-            <Link href="/" className="text-2xl font-bold text-pink-500">
-                Idol Ranking
-            </Link>
-            </div>
-
-            {/* 右：ログイン系 */}
-            <div className="flex items-center gap-4 text-sm">
-            {!user && (
-                <>
-                <a href="/login" className="text-blue-500 cursor-pointer">ログイン</a>
-                <a href="/register" className="text-blue-500 cursor-pointer">会員登録</a>
-                </>
-            )}
-
-            {user && (
-                <div className="flex items-center gap-3">
-                <a
-                    href="/mypage"
-                    className="px-3 py-1 border rounded-lg hover:bg-pink-50 cursor-pointer"
-                >
-                    👤 マイページ
-                </a>
-
-                <button
-                    onClick={logout}
-                    className="bg-gray-500 text-white px-3 py-1 rounded text-sm cursor-pointer hover:bg-gray-600"
-                >
-                    ログアウト
-                </button>
-                </div>
-            )}
-            </div>
-
-        </div>
-        
-        </div>
-      <div className="h-16"></div>
-
-      {/* PC用サイドバー */}
-<aside className="hidden md:block fixed left-0 top-16 h-[calc(100vh-4rem)] w-56 bg-white border-r p-4 z-10 overflow-y-auto">
-    <div className="p-4 space-y-4 text-sm">
-                <div className="font-bold text-lg mb-6">MENU</div>
-
-            <div className="space-y-4 text-sm">
-
-                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
-                <Trophy size={16}/> ランキング
-                </Link>
-
-                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
-                <Star size={16}/> おすすめ
-                </Link>
-
-                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
-                <Home size={16}/> 投票
-                </Link>
-
-                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
-                <ImagePlus size={16}/> 投稿
-                </Link>
-
-                {/* タグメニュー */}
-                <div className="mt-6">
-                <button
-                    onClick={() => setShowTags(!showTags)}
-                    className="font-bold text-sm mb-2 flex items-center gap-2 hover:text-pink-500 transition"
-                >
-                    タグ {showTags ? "▲" : "▼"}
-                </button>
-
-                {showTags && (
-                    <div className="space-y-2 mt-2">
-                    {popularTags.map((tag) => (
-                        <Link
-                        key={tag.name}
-                        href={`/tag/${encodeURIComponent(tag.name)}`}
-                        className="block text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded hover:bg-pink-200 transition"
-                        >
-                        #{tag.name}
-                        </Link>
-                    ))}
-                    </div>
-                )}
-                </div>
-
-                {/* 👇 ここ追加 */}
-                <Link href="/register" className="flex gap-2 hover:text-pink-500 transition">
-                会員登録
-                </Link>
-
-                <Link href="/login" className="flex gap-2 hover:text-pink-500 transition">
-                ログイン
-                </Link>
-
-                <Link href="/privacy" className="flex gap-2 hover:text-pink-500 transition">
-                プライバシーポリシー
-                </Link>
-
-                <Link href="/contact" className="flex gap-2 hover:text-pink-500 transition">
-                お問い合わせ
-                </Link>
-
-                <Link href="/about" className="flex gap-2 hover:text-pink-500 transition">
-                運営者情報
-                </Link>
-            </div>
-            </div>
-</aside>
-
-        {/* サイドバー */}
-            <div
-            className={`md:hidden mr-2 fixed top-0 left-0 h-full w-[80%] max-w-xs bg-white shadow-lg z-50 transform transition-transform duration-300
-            ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
-            >
-            <button
-                onClick={() => setIsOpen(false)}
-                className="p-4 text-lg"
-            >
-                ✕
-            </button>
-
-            <div className="p-4 space-y-4 text-sm">
-                <div className="font-bold text-lg mb-6">MENU</div>
-
-            <div className="space-y-4 text-sm">
-
-                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
-                <Trophy size={16}/> ランキング
-                </Link>
-
-                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
-                <Star size={16}/> おすすめ
-                </Link>
-
-                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
-                <Home size={16}/> 投票
-                </Link>
-
-                <Link href="/" className="flex gap-2 hover:text-pink-500 transition">
-                <ImagePlus size={16}/> 投稿
-                </Link>
-
-                {/* タグメニュー */}
-                <div className="mt-6">
-                <button
-                    onClick={() => setShowTags(!showTags)}
-                    className="font-bold text-sm mb-2 flex items-center gap-2 hover:text-pink-500 transition"
-                >
-                    タグ {showTags ? "▲" : "▼"}
-                </button>
-
-                {showTags && (
-                    <div className="space-y-2 mt-2">
-                    {popularTags.map((tag) => (
-                        <Link
-                        key={tag.name}
-                        href={`/tag/${encodeURIComponent(tag.name)}`}
-                        className="block text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded hover:bg-pink-200 transition"
-                        >
-                        #{tag.name}
-                        </Link>
-                    ))}
-                    </div>
-                )}
-                </div>
-
-                {/* 👇 ここ追加 */}
-                <Link href="/register" className="flex gap-2 hover:text-pink-500 transition">
-                会員登録
-                </Link>
-
-                <Link href="/login" className="flex gap-2 hover:text-pink-500 transition">
-                ログイン
-                </Link>
-
-                <Link href="/privacy" className="flex gap-2 hover:text-pink-500 transition">
-                プライバシーポリシー
-                </Link>
-
-                <Link href="/contact" className="flex gap-2 hover:text-pink-500 transition">
-                お問い合わせ
-                </Link>
-
-                <Link href="/about" className="flex gap-2 hover:text-pink-500 transition">
-                運営者情報
-                </Link>
-            </div>
-            </div>
-            </div>
-
-            {isOpen && (
-            <div
-                onClick={() => setIsOpen(false)}
-                className="fixed inset-0 bg-black/30 z-40"
-            />
-            )}
-
         {/* ⭐ レイアウト修正 */}
         <main className="flex-1 md:ml-56">
 
@@ -605,47 +397,36 @@ if (loading) return null;
 
             {/* タイトル */}
             <div className="p-4 md:p-10 text-center mb-5">
-
-              <div className="w-full max-w-xl mx-auto px-6 py-6 md:px-10 md:py-8 rounded-2xl
-                bg-gradient-to-br from-pink-50 via-white to-purple-50
-                border border-pink-200 shadow-md mb-5">
-
-                <h1
-                  className={`${playfair.className} 
-                  text-3xl md:text-5xl 
-                  font-bold 
-                  tracking-wide 
-                  bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 
-                  bg-clip-text text-transparent`}
-                >
-                  推しが見つかる
-                  <br />
-                  アイドルランキング
-                </h1>
-
-                <div
-                  className={`${noto.className} 
-                  mt-4 text-xs md:text-sm 
-                  tracking-[0.4em] 
-                  text-gray-500`}
-                >
-                  FIND YOUR FAVORITE IDOL
-                </div>                
-              </div>
-
-              {/* 🔍 検索バー */}
-                <div className="flex justify-center mb-6">
-                <input
-                    type="text"
-                    placeholder="アイドルを検索..."
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    className="border px-4 py-3 rounded-full w-full max-w-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
-                />
-                </div>
-
                 <div className="p-6">
                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* 🔍 検索結果 */}
+                    {keyword && (
+                    <div className="max-w-4xl mx-auto mb-8 bg-white rounded-2xl shadow-md p-6">
+                        <h2 className="font-bold text-lg mb-4 text-center">
+                        「{keyword}」の検索結果
+                        </h2>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {filteredIdols.slice(0, 8).map((idol) => (
+                            <Link key={idol.id} href={`/idol/${idol.id}`}>
+                            <div className="text-center hover:scale-105 transition cursor-pointer">
+                                <img
+                                src={idol.image}
+                                className="rounded-xl w-full aspect-[2/3] object-cover"
+                                />
+                                <div className="mt-1 text-sm font-bold">{idol.name}</div>
+                            </div>
+                            </Link>
+                        ))}
+                        </div>
+
+                        {filteredIdols.length === 0 && (
+                        <p className="text-center text-gray-400 mt-4">
+                            該当するアイドルがいません
+                        </p>
+                        )}
+                    </div>
+                    )}
 
                 {/* 🏆ランキング */}
                 <div className="flex-[2] bg-white rounded-2xl shadow-md p-6">
@@ -823,7 +604,7 @@ if (loading) return null;
                     </div>
                     )}
 
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+                <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8">
                   {filteredIdols.map((idol) => (
                     <div
                       key={idol.id}

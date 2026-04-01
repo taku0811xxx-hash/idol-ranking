@@ -3,6 +3,8 @@ import "./globals.css";
 import { noto } from "./fonts";
 import Script from "next/script";
 import GA from "./GA";
+import Header from "@/app/components/Header"; // ← 追加
+import Sidebar from "@/app/components/Sidebar";
 
 export const metadata: Metadata = {
   title: "アイドルランキング｜人気投票サイト",
@@ -22,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${noto.className} min-h-screen overflow-x-hidden`}>
-        
+
         {/* 🔥 Google Analytics */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-F52LGM1JDL"
@@ -32,7 +34,7 @@ export default function RootLayout({
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
-          window.gtag = gtag; // ← これ追加（重要）
+          window.gtag = gtag;
 
           gtag('js', new Date());
 
@@ -40,12 +42,20 @@ export default function RootLayout({
             page_path: window.location.pathname,
           });
         `}
-      </Script>
+        </Script>
 
         {/* 🔥 ページ遷移計測 */}
         <GA />
 
-        {children}
+        {/* ✅ ここ追加（超重要） */}
+        <Header />
+        <Sidebar />
+
+        {/* 👇 ヘッダー分の余白 */}
+        <main className="pt-16">
+          {children}
+        </main>
+
       </body>
     </html>
   );
