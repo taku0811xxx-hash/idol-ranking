@@ -5,7 +5,6 @@ export function generateSEOText(idol: any) {
     `${idol.name}は人気の${idol.category || "アイドル"}です。`;
 
   return `
-${idol.name}について
 
 ${mainText}
 
