@@ -78,14 +78,6 @@ export default async function IdolDetail({
         }),
       }}
     />
-      {/* ヘッダー */}
-      <div className="w-full bg-white shadow fixed top-0 left-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between">
-          <Link href="/" className="text-2xl font-bold text-pink-500">
-            Idol Ranking
-          </Link>
-        </div>
-      </div>
 
       <div className="pt-20 min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
         <div className="max-w-5xl mx-auto p-6">
@@ -223,18 +215,6 @@ export default async function IdolDetail({
 
           </div>
         </div>
-
-        {/* フッター */}
-        <footer className="bg-gray-900 text-white mt-16">
-          <div className="max-w-5xl mx-auto px-6 py-16 text-center">
-            <div className="mb-4 font-bold text-lg">
-              Idol Ranking
-            </div>
-            <div className="text-sm text-gray-400">
-              © 2026 Gravure Rank
-            </div>
-          </div>
-        </footer>
       </div>
     </>
   );

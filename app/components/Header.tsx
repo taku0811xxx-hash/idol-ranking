@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { auth } from "@/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
-export default function Header() {
+export default function Header({ setIsOpen }: any) {
   const [search, setSearch] = useState("");
   const [user, setUser] = useState<any>(null);
 
@@ -25,17 +25,25 @@ export default function Header() {
     <div className="w-full h-16 bg-white shadow-md fixed top-0 left-0 z-50">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3 gap-4">
 
-        {/* 左：タイトル */}
-        <Link href="/" className="flex flex-col leading-tight">
-            <span className="text-xl md:text-2xl font-bold text-pink-500">
-                アイドルランキング
-            </span>
-            <span className="text-[10px] md:text-xs text-gray-400 tracking-widest">
-                FIND YOUR FAVORITE IDOL
-            </span>
-            </Link>
+        {/* 👇 追加（スマホ用メニュー） */}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="md:hidden text-xl"
+        >
+          ☰
+        </button>
 
-        {/* 中央：検索 */}
+        {/* タイトル（元のまま） */}
+        <Link href="/" className="flex flex-col leading-tight">
+          <span className="text-xl md:text-2xl font-bold text-pink-500">
+            アイドルランキング
+          </span>
+          <span className="text-[10px] md:text-xs text-gray-400 tracking-widest">
+            FIND YOUR FAVORITE IDOL
+          </span>
+        </Link>
+
+        {/* 検索（そのまま） */}
         <div className="flex-1 flex justify-center">
           <div className="relative w-full max-w-md">
 
@@ -65,7 +73,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* 🔥 右：ログイン系 */}
+        {/* ログイン系（元のまま） */}
         <div className="flex items-center gap-3 text-sm">
 
           {!user && (

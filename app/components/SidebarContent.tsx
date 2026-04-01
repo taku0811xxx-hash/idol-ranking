@@ -40,15 +40,15 @@ export default function SidebarContent({
 
           {showTags && (
             <div className="space-y-2 mt-2">
-              {popularTags.map((tag: any) => (
+              {(popularTags || []).map((tag: any) => (
                 <Link
-                  key={tag.name}
-                  href={`/tag/${encodeURIComponent(tag.name)}`}
-                  className="block text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded hover:bg-pink-200 transition"
+                    key={tag.name}
+                    href={`/tag/${encodeURIComponent(tag.name)}`}
+                    className="block text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded"
                 >
-                  #{tag.name}
+                    #{tag.name}
                 </Link>
-              ))}
+                ))}
             </div>
           )}
         </div>

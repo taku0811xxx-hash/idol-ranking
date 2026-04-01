@@ -3,8 +3,10 @@ import "./globals.css";
 import { noto } from "./fonts";
 import Script from "next/script";
 import GA from "./GA";
-import Header from "@/app/components/Header"; // ← 追加
+import Header from "@/app/components/Header";
 import Sidebar from "@/app/components/Sidebar";
+import Footer from "@/app/components/Footer";
+import LayoutClient from "./LayoutClient"; // ← 追加
 
 export const metadata: Metadata = {
   title: "アイドルランキング｜人気投票サイト",
@@ -21,6 +23,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+
   return (
     <html lang="ja">
       <body className={`${noto.className} min-h-screen overflow-x-hidden`}>
@@ -47,14 +51,9 @@ export default function RootLayout({
         {/* 🔥 ページ遷移計測 */}
         <GA />
 
-        {/* ✅ ここ追加（超重要） */}
-        <Header />
-        <Sidebar />
-
-        {/* 👇 ヘッダー分の余白 */}
-        <main className="pt-16">
+        <LayoutClient>
           {children}
-        </main>
+        </LayoutClient>
 
       </body>
     </html>
