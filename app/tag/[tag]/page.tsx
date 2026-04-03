@@ -10,6 +10,7 @@ import {
   where,
   getDocs
 } from "firebase/firestore";
+import { ChevronRight, Hash, LayoutGrid, Users, ArrowUpRight } from "lucide-react";
 
 // ==============================
 // SEO
@@ -45,102 +46,127 @@ export default async function TagPage({
   );
 
   const snapshot = await getDocs(q);
-
   const idols = snapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data(),
+    ...(doc.data() as any),
   }));
-  
+
+  const recommendedTags = ["可愛い系", "清楚", "セクシー", "巨乳", "美脚", "スレンダー"];
 
   return (
     <>
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          itemListElement: idols.map((idol: any, index: number) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            name: idol.name,
-          })),
-        }),
-      }}
-    />
-      {/* ================= ヘッダー ================= */}
-      <div className="w-full bg-white shadow fixed top-0 left-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between">
-          <Link href="/" className="text-2xl font-bold text-pink-500">
-            Idol Ranking
-          </Link>
-        </div>
-      </div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            itemListElement: idols.map((idol: any, index: number) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              name: idol.name,
+              url: `https://your-domain.com/idol/${idol.id}`
+            })),
+          }),
+        }}
+      />
 
-      {/* ================= メイン ================= */}
-      <div className="pt-20 min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
-        <div className="max-w-5xl mx-auto p-6">
+      <div className="pt-24 pb-32 min-h-screen bg-[#F8FAFC]">
+        <div className="max-w-6xl mx-auto px-6">
 
-          {/* タイトル */}
-          <div className="text-sm text-gray-500 mb-2">
-            <Link href="/">TOP</Link> ＞ 
-            <span>{decodedTag}</span>
-          </div>
-          <h1 className="text-3xl font-bold mb-2 text-gray-800">
-            "{decodedTag}"タグのアイドル一覧
-          </h1>
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-10">
+            <Link href="/" className="hover:text-pink-500 transition-colors">TOP</Link>
+            <ChevronRight size={12} />
+            <span className="text-slate-900 italic">TAG: {decodedTag.toUpperCase()}</span>
+          </nav>
 
-          <p className="text-gray-600 mb-6">
-          {decodedTag}系の人気アイドルをランキング形式で紹介しています。
-          ユーザー投票や注目度をもとに、今人気のアイドルが一目で分かります。
-          {decodedTag}が好きな方におすすめの一覧ページです。
-          </p>
-
-          <div className="flex flex-wrap gap-2 mb-6">
-          {["可愛い系", "清楚", "セクシー", "巨乳"].map((tag) => (
-            <Link
-              key={tag}
-              href={`/tag/${encodeURIComponent(tag)}`}
-              className="bg-pink-100 text-pink-600 px-2 py-1 rounded text-xs"
-            >
-              #{tag}
-            </Link>
-          ))}
-        </div>
-
-          {/* 件数 */}
-          <p className="mb-4 text-sm text-gray-600">
-            {idols.length}件
-          </p>
-
-          {/* 空状態 */}
-          {idols.length === 0 && (
-            <p className="text-gray-500">
-              該当するアイドルがいません
-            </p>
-          )}
-
-          {/* グリッド */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {idols.map((idol:any) => (
-              <div
-                key={idol.id}
-                className="bg-white rounded-xl shadow hover:shadow-lg transition p-3 flex flex-col"
-              >
-                <Link href={`/idol/${idol.id}`}>
-                  <img
-                    src={idol.image}
-                    alt={idol.name}
-                    className="rounded-lg w-full h-64 object-cover object-top"
-                  />
-                  <p className="mt-3 text-center font-semibold text-gray-800">
-                    {idol.name}
-                  </p>
-                </Link>
+          {/* Page Header */}
+          <div className="mb-16 space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="bg-slate-900 text-pink-500 p-3 rounded-2xl shadow-lg rotate-3">
+                <Hash size={32} strokeWidth={3} />
               </div>
-            ))}
+              <h1 className="text-6xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
+                {decodedTag}<span className="text-pink-500 not-italic text-2xl ml-2">ARCHIVE</span>
+              </h1>
+            </div>
+            
+            <div className="max-w-3xl">
+              <p className="text-slate-500 text-lg font-medium leading-relaxed">
+                <span className="text-slate-900 font-bold">{decodedTag}</span> 属性を持つキャストを独自の注目度スコアに基づきリストアップしました。
+                ビジュアル、キャリア、そしてユーザーからの支持を兼ね備えた人気アイドルをチェック。
+              </p>
+            </div>
+
+            {/* Related Tags Pill */}
+            <div className="flex flex-wrap gap-2 pt-4">
+              {recommendedTags.map((t) => (
+                <Link
+                  key={t}
+                  href={`/tag/${encodeURIComponent(t)}`}
+                  className={`px-4 py-2 rounded-full text-[10px] font-black tracking-widest transition-all border 
+                    ${t === decodedTag 
+                      ? "bg-pink-500 border-pink-500 text-white shadow-lg shadow-pink-500/20" 
+                      : "bg-white border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900"}`}
+                >
+                  #{t.toUpperCase()}
+                </Link>
+              ))}
+            </div>
           </div>
 
+          {/* Stats Bar */}
+          <div className="flex items-center justify-between mb-8 border-b border-slate-200 pb-4">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 text-[11px] font-black uppercase text-slate-400 tracking-widest">
+                <LayoutGrid size={14} /> View: Grid
+              </div>
+              <div className="flex items-center gap-2 text-[11px] font-black uppercase text-slate-400 tracking-widest">
+                <Users size={14} /> Total: {idols.length} results
+              </div>
+            </div>
+          </div>
+
+          {/* Grid Content */}
+          {idols.length === 0 ? (
+            <div className="py-20 text-center">
+              <p className="text-slate-300 font-black italic text-4xl uppercase tracking-tighter">No Data Found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              {idols.map((idol: any) => (
+                <Link key={idol.id} href={`/idol/${idol.id}`} className="group">
+                  <div className="relative bg-white rounded-[2rem] p-3 shadow-sm border border-slate-100 group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+                    {/* Image Container */}
+                    <div className="relative rounded-[1.6rem] overflow-hidden aspect-[3/4]">
+                      <img
+                        src={idol.image}
+                        alt={idol.name}
+                        className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                        <span className="text-white text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-1">
+                          View Profile <ArrowUpRight size={14} />
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Info */}
+                    <div className="mt-4 px-2 pb-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-black uppercase text-pink-500 tracking-widest">Featured Cast</span>
+                        <span className="text-[9px] font-bold text-slate-300">#{idol.cup || "—"} Cup</span>
+                      </div>
+                      <h3 className="text-xl font-black italic uppercase tracking-tighter text-slate-900 group-hover:text-pink-500 transition-colors">
+                        {idol.name}
+                      </h3>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </>

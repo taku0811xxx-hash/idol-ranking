@@ -1,24 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  collection,
-  getDocs,
-  deleteDoc,
-  doc,
-  setDoc,
+import { 
+  collection, getDocs, deleteDoc, doc, setDoc, serverTimestamp 
 } from "firebase/firestore";
-
-import {getDoc} from "firebase/firestore"
-
 import { db, uploadImage } from "../../firebase";
-import { increment } from "firebase/firestore";
+import { 
+  ShieldCheck, Image as ImageIcon, Trash2, Sparkles, 
+  Edit3, Clock, Search, History, MessageSquare, X 
+} from "lucide-react";
 
 const TAG_OPTIONS = [
   "清楚","童顔","巨乳","セクシー","ギャル","ナチュラル","お姉さん","ロリ系",
   "スレンダー","くびれ","美脚","高身長","低身長","グラマラス",
-  "クール","可愛い系","大人系","癒し系","透明感",
-  "コスプレ","アイドル系","女優系","インフルエンサー"
+  "クール","可愛い系","大人系","癒し系","透明感","コスプレ"
 ];
 
 export default function AdminPage() {
@@ -28,524 +23,178 @@ export default function AdminPage() {
   const [file, setFile] = useState<File | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
-  const [proposals, setProposals] = useState<any[]>([]);
-  const [comments, setComments] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-const [form, setForm] = useState({
-    name: "",
-    image: "",
-    category: "",
-    bio: "",
-    career: "",       // ←追加
-    age: "",
-    height: "",
-    cup: "",
-    size: "",         // ←追加
-    birthplace: "",   // ←追加
-    genre: "",        // ←追加
-    catch: "",        // ←追加
-    tags: "",
+  const [form, setForm] = useState({
+    name: "", image: "", category: "", bio: "", career: "",
+    age: "", height: "", cup: "", size: "", birthplace: "",
+    genre: "", catch: "", tags: "",
   });
 
-  const fetchProposals = async () => {
-  const snapshot = await getDocs(collection(db, "proposals"));
-  const list: any[] = [];
-
-  snapshot.forEach((docItem) => {
-    list.push({ id: docItem.id, ...docItem.data() });
-  });
-
-  setProposals(list);
-};
+  const fetchData = async () => {
+    try {
+      const pSnap = await getDocs(collection(db, "pending_idols"));
+      setPending(pSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+      const iSnap = await getDocs(collection(db, "idols"));
+      setIdols(iSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) { console.error(e); }
+  };
 
   useEffect(() => {
-    const password = prompt("パスワード入力");
-    if (password === "naog2ih214do122ijoihga11") setIsAuth(true);
+    const password = prompt("管理者パスワード");
+    if (password === "naog2ih214do122ijoihga11") { setIsAuth(true); fetchData(); }
   }, []);
 
-  const fetchIdols = async () => {
-    const snapshot = await getDocs(collection(db, "idols"));
-    const list: any[] = [];
-    snapshot.forEach((docItem) => {
-      list.push({ id: docItem.id, ...docItem.data() });
-    });
-    setIdols(list);
-  };
-
-  const fetchPending = async () => {
-    const snapshot = await getDocs(collection(db, "pending_idols"));
-    const list: any[] = [];
-    snapshot.forEach((docItem) => {
-      list.push({ id: docItem.id, ...docItem.data() });
-    });
-    setPending(list);
-  };
-
-  useEffect(() => {
-  if (isAuth) {
-    fetchIdols();
-    fetchPending();
-    fetchProposals(); // ←追加
-    fetchComments();
-  }
-}, [isAuth]);
-
-  const toggleTag = (tag: string) => {
-    const current = form.tags ? form.tags.split(",").map(t=>t.trim()) : [];
-    const newTags = current.includes(tag)
-      ? current.filter(t=>t!==tag)
-      : [...current, tag];
-    setForm({ ...form, tags: newTags.join(",") });
-  };
-
-  const isSelected = (tag: string) => {
-    if (!form.tags) return false;
-    return form.tags.split(",").map(t=>t.trim()).includes(tag);
-  };
-
   const autoFill = async () => {
-    if (!form.name) return alert("名前を入力してね");
+    if (!form.name) return alert("名前を入力してください");
     setAiLoading(true);
     try {
-      const res = await fetch("/api/ai", {
-        method: "POST",
-        body: JSON.stringify({ name: form.name }),
-      });
+      const res = await fetch("/api/ai", { method: "POST", body: JSON.stringify({ name: form.name }) });
       const data = await res.json();
-      setForm(prev => ({
-        ...prev,
-        category: data.category || "",
-        bio: data.bio || "",
-        age: data.age || "",
-        height: data.height || "",
-        cup: data.cup || "",
-      }));
-    } catch {
-      alert("AI取得失敗");
-    } finally {
-      setAiLoading(false);
-    }
+      // 🌟 AIから届いた全ての詳細データを一括反映
+      setForm(prev => ({ ...prev, ...data }));
+    } catch { alert("AI取得失敗"); } finally { setAiLoading(false); }
   };
 
   const saveIdol = async () => {
-    if (!form.name) return alert("名前は必須");
-
+    if (!form.name) return alert("名前は必須です");
     let imageUrl = form.image;
     if (file) imageUrl = await uploadImage(file);
-
     const data = {
       ...form,
       image: imageUrl,
       tags: form.tags ? form.tags.split(",").map(t=>t.trim()) : [],
-      age: form.age ? Number(form.age) : null,
-      height: form.height ? Number(form.height) : null,
+      updatedAt: serverTimestamp(),
     };
-
     await setDoc(doc(db, "idols", form.name.trim()), data, { merge: true });
+    alert("反映完了🔥");
+    resetForm(); fetchData();
+  };
 
-    alert(editingId ? "更新した🔥" : "追加した🔥");
-    resetForm();
-    fetchIdols();
+  const approve = async (item: any) => {
+    const finalName = (form.name || item.name).trim();
+    let imageUrl = form.image || item.imageUrl;
+    if (file) imageUrl = await uploadImage(file);
+    await setDoc(doc(db, "idols", finalName), {
+      ...form,
+      name: finalName,
+      image: imageUrl,
+      tags: form.tags ? form.tags.split(",").map(t=>t.trim()) : [],
+    }, { merge: true });
+    await deleteDoc(doc(db, "pending_idols", item.id));
+    alert("承認しました🔥");
+    resetForm(); fetchData();
   };
 
   const resetForm = () => {
-    setForm({
-      name: "",
-      image: "",
-      category: "",
-      bio: "",
-      career: "",       // ←追加
-      age: "",
-      height: "",
-      cup: "",
-      size: "",         // ←追加
-      birthplace: "",   // ←追加
-      genre: "",        // ←追加
-      catch: "",        // ←追加
-      tags: "",
-    });
-    setFile(null);
-    setEditingId(null);
+    setForm({ name: "", image: "", category: "", bio: "", career: "", age: "", height: "", cup: "", size: "", birthplace: "", genre: "", catch: "", tags: "" });
+    setFile(null); setEditingId(null);
   };
 
-  const loadIdol = (idol:any) => {
-    setEditingId(idol.id);
-    setForm({
-      name: idol.name || "",
-      image: idol.image || "",
-      category: idol.category || "",
-      bio: idol.bio || "",
-      age: idol.age?.toString() || "",
-      height: idol.height?.toString() || "",
-      cup: idol.cup || "",
-      tags: Array.isArray(idol.tags) ? idol.tags.join(",") : idol.tags || "",
-      career: idol.career || "",
-      size: idol.size || "",
-      birthplace: idol.birthplace || "",
-      genre: idol.genre || "",
-      catch: idol.catch || "",
-    });
+  const toggleTag = (tag: string) => {
+    const current = form.tags ? form.tags.split(",").map(t=>t.trim()) : [];
+    const newTags = current.includes(tag) ? current.filter(t=>t!==tag) : [...current, tag];
+    setForm({ ...form, tags: newTags.join(",") });
   };
 
-const loadPending = (item:any) => {
-  setEditingId(null);
-  setForm({
-    name: item.name || "",
-    image: item.imageUrl || "",
-    category: "",
-    bio: "",
-    age: "",
-    height: "",
-    cup: "",
-    tags: "",
-    career: "",
-    size: "",
-    birthplace: "",
-    genre: "",
-    catch: "",
-  });
-};
-  const normalize = (name: string) => {
-  return name.trim().toLowerCase();
-};
-  const approve = async (item:any) => {
-    let imageUrl = form.image || item.imageUrl;
-    if (file) imageUrl = await uploadImage(file);
-
-    const name = normalize(form.name || item.name);
-    const idolRef = doc(db, "idols", name);
-
-    const existing = await getDoc(idolRef);
-
-    if (existing.exists()) {
-      // 🔥 既存 → 画像更新
-      await setDoc(
-        idolRef,
-        {
-          image: imageUrl,
-        },
-        { merge: true }
-      );
-
-      alert("画像を更新した🔥");
-    } else {
-      // 🔥 新規
-      await setDoc(idolRef, {
-        ...form,
-        name,
-        image: imageUrl,
-        tags: form.tags ? form.tags.split(",").map(t=>t.trim()) : [],
-      });
-
-      alert("追加した🔥");
-    }
-
-    await deleteDoc(doc(db,"pending_idols",item.id));
-
-    resetForm();
-    fetchIdols();
-    fetchPending();
-  };
-  const reject = async (id:string) => {
-    await deleteDoc(doc(db,"pending_idols",id));
-    fetchPending();
-  };
-
-  const deleteIdol = async (id:string) => {
-    if (!confirm("削除する？")) return;
-    await deleteDoc(doc(db,"idols",id));
-    fetchIdols();
-  };
-
-      const approveProposal = async (item: any) => {
-      const idolRef = doc(db, "idols", item.idolId);
-
-      // 🔥 appeal更新
-      await setDoc(
-        idolRef,
-        {
-          appeal: item.content,
-        },
-        { merge: true }
-      );
-
-      // 🔥 ステータス変更
-      await setDoc(
-        doc(db, "proposals", item.id),
-        { status: "approved" },
-        { merge: true }
-      );
-
-      alert("提案を反映した🔥");
-      fetchProposals();
-    };
-
-    const rejectProposal = async (id: string) => {
-      await deleteDoc(doc(db, "proposals", id));
-      fetchProposals();
-    };
-
-    const fetchComments = async () => {
-      const snapshot = await getDocs(collection(db, "idol_comments"));
-      const list: any[] = [];
-
-      snapshot.forEach((docItem) => {
-        list.push({ id: docItem.id, ...docItem.data() });
-      });
-
-      setComments(list);
-    };
-    const deleteComment = async (id: string) => {
-    if (!confirm("このコメント削除する？")) return;
-
-    await deleteDoc(doc(db, "idol_comments", id));
-    fetchComments();
-  };
-
-  if (!isAuth) return <div className="p-6">認証中...</div>;
+  if (!isAuth) return <div className="p-20 text-center font-black text-slate-300">AUTH REQUIRED</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">管理画面</h1>
+    <div className="h-screen bg-slate-50 flex flex-col overflow-hidden font-sans">
+      <header className="bg-slate-900 text-white p-4 px-8 flex justify-between items-center z-10 shadow-xl">
+        <div className="flex items-center gap-3"><ShieldCheck className="text-pink-500" /><h1 className="font-black italic uppercase text-xl tracking-tighter">Proto Admin</h1></div>
+        <button onClick={fetchData} className="text-slate-400 hover:text-white transition-colors"><History size={20}/></button>
+      </header>
 
-      <div className="flex gap-6">
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left: Pending */}
+        <aside className="w-80 bg-white border-r overflow-y-auto p-4 space-y-4">
+          <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><Clock size={14}/> Pending ({pending.length})</h2>
+          {pending.map(item => (
+            <div key={item.id} className="bg-slate-50 border border-slate-100 p-3 rounded-2xl">
+              <img src={item.imageUrl} className="w-full aspect-square object-cover rounded-xl mb-2 shadow-sm" />
+              <div className="font-black text-xs truncate mb-2">{item.name}</div>
+              <div className="flex gap-1">
+                <button onClick={() => setForm({ ...form, name: item.name, image: item.imageUrl })} className="flex-1 bg-white border border-slate-200 text-[10px] font-bold py-2 rounded-lg hover:bg-slate-100">EDIT</button>
+                <button onClick={() => approve(item)} className="flex-1 bg-green-500 text-white text-[10px] font-bold py-2 rounded-lg hover:bg-green-600">APP</button>
+                <button onClick={() => deleteDoc(doc(db,"pending_idols",item.id)).then(fetchData)} className="p-2 text-red-400 hover:bg-red-50 rounded-lg"><Trash2 size={14}/></button>
+              </div>
+            </div>
+          ))}
+        </aside>
 
-        {/* 左 */}
-        <div className="w-1/2">
-
-          {editingId && (
-            <div className="text-blue-500 mb-2">✏️ 編集中</div>
-          )}
-
-          <h2 className="font-bold mt-6 mb-2">承認待ち</h2>
-
-          <div className="space-y-2 mb-6">
-            {pending.map(item=>(  
-              <div key={item.id} className="border p-3 rounded-xl">
-                <img src={item.imageUrl} className="w-32 h-32 object-cover mb-2 rounded" />
-                <div>{item.name}</div>
-                <div className="text-xs text-gray-400">
-                {item.type === "update" ? "画像改善投稿" : "新規投稿"}
+        {/* Center: Form */}
+        <main className="flex-1 overflow-y-auto p-8">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 space-y-6">
+              <div className="flex gap-8">
+                <div className="w-40 aspect-[3/4] bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 relative overflow-hidden flex items-center justify-center group">
+                  {(file || form.image) ? <img src={file ? URL.createObjectURL(file) : form.image} className="w-full h-full object-cover" /> : <ImageIcon className="text-slate-200" size={32} />}
+                  <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                </div>
+                <div className="flex-1 space-y-4">
+                  <input value={form.name} onChange={e=>setForm({...form, name: e.target.value})} className="w-full bg-slate-50 border-none rounded-2xl p-4 font-black text-lg uppercase italic focus:ring-2 focus:ring-pink-500" placeholder="NAME" />
+                  <button onClick={autoFill} disabled={aiLoading} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs flex items-center justify-center gap-2 hover:bg-pink-500 transition-all shadow-lg shadow-slate-900/20">
+                    {aiLoading ? "AI ANALYZING..." : <><Sparkles size={16} /> AI SEO Auto Fill</>}
+                  </button>
+                </div>
               </div>
 
-                <div className="flex gap-2 mt-2">
-                  <button onClick={()=>loadPending(item)} className="text-blue-500 cursor-pointer hover:opacity-70">編集</button>
-                  <button onClick={()=>approve(item)} className="text-green-500 cursor-pointer hover:opacity-70">承認</button>
-                  <button onClick={()=>reject(item.id)} className="text-red-500 cursor-pointer hover:opacity-70">却下</button>
+              <div className="grid grid-cols-3 gap-4">
+                {["age", "height", "cup", "category", "birthplace", "genre", "size"].map(k => (
+                  <div key={k}>
+                    <label className="text-[9px] font-black uppercase text-slate-400 ml-1">{k}</label>
+                    <input value={(form as any)[k]} onChange={e=>setForm({...form, [k]: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-bold focus:ring-2 focus:ring-pink-500" />
+                  </div>
+                ))}
+              </div>
+
+              <div>
+                <label className="text-[9px] font-black uppercase text-slate-400 ml-1">Catchphrase</label>
+                <input value={form.catch} onChange={e=>setForm({...form, catch: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl p-3 text-sm font-bold" placeholder="印象的なキャッチコピー" />
+              </div>
+
+              <div>
+                <label className="text-[9px] font-black uppercase text-slate-400 ml-1">SEO Career (Long Form)</label>
+                <textarea value={form.career} onChange={e=>setForm({...form, career: e.target.value})} className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-medium leading-relaxed min-h-[180px] focus:ring-2 focus:ring-pink-500" placeholder="経歴が300文字程度で入力されます。SEOキーワードを含めると効果的です。" />
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {TAG_OPTIONS.map(tag => (
+                  <button key={tag} onClick={() => toggleTag(tag)} className={`px-3 py-1.5 rounded-full text-[10px] font-black transition-all ${form.tags?.includes(tag) ? "bg-pink-500 text-white shadow-md shadow-pink-500/20" : "bg-slate-100 text-slate-400 hover:bg-slate-200"}`}>#{tag}</button>
+                ))}
+              </div>
+
+              <button onClick={saveIdol} className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black uppercase italic tracking-widest hover:bg-pink-500 transition-all shadow-xl">
+                {editingId ? "Update Database" : "Add to Database"}
+              </button>
+            </div>
+          </div>
+        </main>
+
+        {/* Right: Master List */}
+        <aside className="w-80 bg-white border-l flex flex-col">
+          <div className="p-4 border-b border-slate-100">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
+              <input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search Database..." className="w-full bg-slate-50 border-none rounded-xl py-2 pl-9 text-xs font-bold" />
+            </div>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {idols.filter(i => i.name.toLowerCase().includes(searchTerm.toLowerCase())).map(idol => (
+              <div key={idol.id} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-xl group transition-colors">
+                <div className="flex items-center gap-3">
+                  <img src={idol.image} className="w-8 h-8 rounded-lg object-cover shadow-sm" />
+                  <div className="text-[11px] font-black uppercase italic truncate w-32">{idol.name}</div>
+                </div>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => { setEditingId(idol.id); setForm({ ...idol, tags: Array.isArray(idol.tags) ? idol.tags.join(",") : (idol.tags || "") }); }} className="p-1 text-slate-400 hover:text-slate-900"><Edit3 size={14}/></button>
+                  <button onClick={() => { if(confirm("本当に削除しますか？")) deleteDoc(doc(db,"idols",idol.id)).then(fetchData); }} className="p-1 text-slate-400 hover:text-red-500"><Trash2 size={14}/></button>
                 </div>
               </div>
             ))}
           </div>
-
-          {/* フォーム */}
-          <div className="space-y-2 mb-6 bg-white p-4 rounded-xl shadow">
-
-            <input className="w-full border p-2 rounded"
-              placeholder="名前"
-              value={form.name}
-              onChange={(e)=>setForm({...form,name:e.target.value})}
-            />
-
-            <button
-              onClick={autoFill}
-              className="w-full bg-purple-500 text-white py-2 rounded cursor-pointer hover:opacity-80"
-            >
-              {aiLoading ? "AI取得中..." : "🤖 AIで自動入力"}
-            </button>
-
-            <input className="w-full border p-2 rounded"
-              placeholder="画像URL"
-              value={form.image}
-              onChange={(e)=>setForm({...form,image:e.target.value})}
-            />
-
-            <input type="file"
-              onChange={(e)=>setFile(e.target.files?.[0]||null)}
-            />
-
-            {(file || form.image) && (
-              <img
-                src={file ? URL.createObjectURL(file) : form.image}
-                className="w-40 h-40 object-cover rounded"
-              />
-            )}
-
-            <input className="w-full border p-2 rounded"
-              placeholder="カテゴリ"
-              value={form.category}
-              onChange={(e)=>setForm({...form,category:e.target.value})}
-            />
-
-            <textarea className="w-full border p-2 rounded"
-              placeholder="プロフィール"
-              value={form.bio}
-              onChange={(e)=>setForm({...form,bio:e.target.value})}
-            />
-
-            <input className="w-full border p-2 rounded"
-              placeholder="年齢"
-              value={form.age}
-              onChange={(e)=>setForm({...form,age:e.target.value})}
-            />
-
-            <input className="w-full border p-2 rounded"
-              placeholder="身長"
-              value={form.height}
-              onChange={(e)=>setForm({...form,height:e.target.value})}
-            />
-
-            <input className="w-full border p-2 rounded"
-              placeholder="カップ"
-              value={form.cup}
-              onChange={(e)=>setForm({...form,cup:e.target.value})}
-            />
-
-            <textarea
-              className="w-full border p-2 rounded"
-              placeholder="経歴"
-              value={form.career}
-              onChange={(e)=>setForm({...form,career:e.target.value})}
-            />
-
-            <input
-              className="w-full border p-2 rounded"
-              placeholder="サイズ（B/W/H）"
-              value={form.size}
-              onChange={(e)=>setForm({...form,size:e.target.value})}
-            />
-
-            <input
-              className="w-full border p-2 rounded"
-              placeholder="出身地"
-              value={form.birthplace}
-              onChange={(e)=>setForm({...form,birthplace:e.target.value})}
-            />
-
-            <input
-              className="w-full border p-2 rounded"
-              placeholder="ジャンル"
-              value={form.genre}
-              onChange={(e)=>setForm({...form,genre:e.target.value})}
-            />
-
-            <input
-              className="w-full border p-2 rounded"
-              placeholder="キャッチコピー"
-              value={form.catch}
-              onChange={(e)=>setForm({...form,catch:e.target.value})}
-            />
-
-            {/* タグ */}
-            <div className="flex flex-wrap gap-2">
-              {TAG_OPTIONS.map(tag=>(
-                <button
-                  key={tag}
-                  onClick={()=>toggleTag(tag)}
-                  className={`cursor-pointer px-3 py-1 rounded-full transition ${
-                    isSelected(tag)
-                      ? "bg-pink-500 text-white"
-                      : "bg-gray-200 hover:bg-gray-300"
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={saveIdol}
-              className="w-full bg-blue-500 text-white py-2 rounded cursor-pointer hover:opacity-80"
-            >
-              {editingId ? "更新する" : "追加する"}
-            </button>
-
-            <button
-              onClick={resetForm}
-              className="w-full bg-gray-300 py-2 rounded cursor-pointer hover:opacity-80"
-            >
-              キャンセル
-            </button>
-
-          </div>
-
-          <h2 className="font-bold mt-6 mb-2">提案（改善案）</h2>
-
-      <div className="space-y-2 mb-6">
-        {proposals.map((item) => (
-          <div key={item.id} className="border p-3 rounded-xl">
-            <div className="text-sm text-gray-500 mb-1">
-              対象：{item.idolId}
-            </div>
-
-            <div className="text-sm mb-2">
-              {item.content}
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => approveProposal(item)}
-                className="text-green-500 cursor-pointer hover:opacity-70"
-              >
-                承認
-              </button>
-
-              <button
-                onClick={() => rejectProposal(item.id)}
-                className="text-red-500 cursor-pointer hover:opacity-70"
-              >
-                却下
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <h2 className="font-bold mt-6 mb-2">コメント管理</h2>
-
-      <div className="space-y-2 mb-6">
-        {comments.map((item) => (
-          <div key={item.id} className="border p-3 rounded-xl">
-            <div className="text-xs text-gray-400 mb-1">
-              {item.idolId}
-            </div>
-
-            <div className="text-sm mb-2">
-              {item.text}
-            </div>
-
-            <button
-              onClick={() => deleteComment(item.id)}
-              className="text-red-500 cursor-pointer hover:opacity-70"
-            >
-              削除
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-
-        
-
-        {/* 右 */}
-        <div className="w-1/2 h-[80vh] overflow-y-auto">
-          <h2 className="font-bold mb-2">登録済み</h2>
-
-          {idols.map(idol=>(
-            <div key={idol.id} className="border p-2 mb-2 rounded flex justify-between items-center hover:bg-gray-50">
-              <div className="flex items-center gap-2">
-                {idol.image && (
-                  <img src={idol.image} className="w-10 h-10 object-cover rounded" />
-                )}
-                {idol.name}
-              </div>
-
-              <div>
-                <button onClick={()=>loadIdol(idol)} className="ml-2 text-blue-500 cursor-pointer hover:opacity-70">編集</button>
-                <button onClick={()=>deleteIdol(idol.id)} className="ml-2 text-red-500 cursor-pointer hover:opacity-70">削除</button>
-              </div>
-            </div>
-          ))}
-        </div>
-
+        </aside>
       </div>
     </div>
   );

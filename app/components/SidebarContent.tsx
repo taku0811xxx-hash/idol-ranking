@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Trophy, Star, Home, ImagePlus } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Trophy, Star, Home, ImagePlus, Hash } from "lucide-react";
 
 const TAG_OPTIONS = [
   "清楚","童顔","巨乳","セクシー","ギャル","ナチュラル","お姉さん","ロリ系",
@@ -14,73 +15,91 @@ export default function SidebarContent({
   showTags,
   setShowTags,
 }: any) {
+  const pathname = usePathname();
+
+  // アクティブ時と通常時の共通クラスを関数化
+  const getLinkClass = (href: string) => {
+    const isActive = pathname === href;
+    return `flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 font-bold ${
+      isActive 
+        ? "bg-pink-50 text-pink-600 shadow-sm shadow-pink-100" 
+        : "text-slate-600 hover:bg-slate-50 hover:text-pink-500"
+    }`;
+  };
+
   return (
-    <div className="p-4 space-y-4 text-sm">
+    <div className="p-4 space-y-2 text-sm">
+      {/* メニュー見出し */}
+      <div className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+        Menu
+      </div>
 
-      <div className="font-bold text-lg mb-6">MENU</div>
-
-      <div className="space-y-4">
-
-        <Link href="/" className="flex gap-2 hover:text-pink-500">
-          <Trophy size={16}/> ランキング
+      {/* メインリンク一覧 */}
+      <div className="space-y-1">
+        <Link href="/" className={getLinkClass("/")}>
+          <Home size={18}/> ホーム
         </Link>
 
-        <Link href="/" className="flex gap-2 hover:text-pink-500">
-          <Star size={16}/> おすすめ
+        <Link href="/ranking" className={getLinkClass("/ranking")}>
+          <Trophy size={18}/> ランキング
         </Link>
 
-        <Link href="/" className="flex gap-2 hover:text-pink-500">
-          <Home size={16}/> 投票
+        <Link href="/recommend" className={getLinkClass("/recommend")}>
+          <Star size={18}/> おすすめ
         </Link>
 
-        <Link href="/" className="flex gap-2 hover:text-pink-500">
-          <ImagePlus size={16}/> 投稿
+        <Link href="/vote" className={getLinkClass("/vote")}>
+          <Hash size={18}/> 投票
         </Link>
 
-        {/* タグ */}
-        <div className="mt-6">
-          <button
-            onClick={() => setShowTags(!showTags)}
-            className="font-bold flex items-center gap-2 hover:text-pink-500"
-          >
-            タグ {showTags ? "▲" : "▼"}
-          </button>
-
-          {showTags && (
-            <div className="space-y-2 mt-3">
-              {TAG_OPTIONS.map((tag) => (
-                <Link
-                  key={tag}
-                  href={`/tag/${encodeURIComponent(tag)}`}
-                  className="block text-xs bg-pink-100 text-pink-600 px-2 py-1 rounded hover:bg-pink-200"
-                >
-                  #{tag}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <Link href="/register" className="block hover:text-pink-500">
-            会員登録
+        <Link href="/post" className={getLinkClass("/post")}>
+          <ImagePlus size={18}/> 投稿
         </Link>
+      </div>
 
-        <Link href="/login" className="block hover:text-pink-500">
-        ログイン
+      {/* タグセクション */}
+      <div className="mt-6">
+        <button
+          onClick={() => setShowTags(!showTags)}
+          className="w-full flex items-center justify-between px-4 py-2 font-black text-slate-400 text-[10px] uppercase tracking-[0.2em] hover:text-pink-500 transition-colors"
+        >
+          Tags <span>{showTags ? "▲" : "▼"}</span>
+        </button>
+
+        {showTags && (
+          <div className="grid grid-cols-1 gap-1 mt-2 px-2">
+            {TAG_OPTIONS.map((tag) => (
+              <Link
+                key={tag}
+                href={`/tag/${encodeURIComponent(tag)}`}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                  pathname === `/tag/${encodeURIComponent(tag)}`
+                    ? "bg-pink-50 text-pink-600"
+                    : "text-slate-500 hover:bg-pink-50/50 hover:text-pink-500"
+                }`}
+              >
+                <Hash size={12} className="opacity-50" />
+                {tag}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 区切り線 */}
+      <div className="my-6 border-t border-slate-100 mx-4"></div>
+
+      {/* サブメニュー */}
+      <div className="space-y-1 px-2">
+        <Link href="/register" className="block px-3 py-2 text-slate-500 hover:text-pink-500 font-medium">
+          会員登録
         </Link>
-
-        <Link href="/privacy" className="block hover:text-pink-500">
-        プライバシーポリシー
+        <Link href="/login" className="block px-3 py-2 text-slate-500 hover:text-pink-500 font-medium">
+          ログイン
         </Link>
-
-        <Link href="/contact" className="block hover:text-pink-500">
-        お問い合わせ
+        <Link href="/privacy" className="block px-3 py-2 text-slate-400 hover:text-pink-500 text-[11px]">
+          プライバシーポリシー
         </Link>
-
-        <Link href="/about" className="block hover:text-pink-500">
-        運営者情報
-        </Link>
-
       </div>
     </div>
   );
