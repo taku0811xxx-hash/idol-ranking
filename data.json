@@ -1273,5 +1273,84 @@
       "清楚",
       "アイドル系"
     ]
+  },
+  {
+    "id": "fujita_nicole",
+    "name": "藤田ニコル",
+    "image": "https://res.cloudinary.com/vivimedia/image/fetch/f_auto,q_auto:eco,dpr_2,w_375/https://www.vivi.tv/wp-content/uploads/2024/12/17162231/21.png",
+    "bio": "モデル・タレント",
+    "career": "雑誌「ニコラ」でデビュー後、「Popteen」「ViVi」の専属モデルとしてトップ人気を誇る。TVバラエティの常連でありながら、自身のアパレルブランドプロデュースやグラビアでもマルチに才能を発揮している。",
+    "age": "28",
+    "height": "167",
+    "cup": "B",
+    "size": "B83 W60 H88",
+    "birthplace": "ニュージーランド",
+    "genre": "モデル / タレント",
+    "catch": "カリスマモデル",
+    "tags": [
+      "ギャル",
+      "インフルエンサー",
+      "スレンダー",
+      "高身長"
+    ]
+  },
+  {
+    "id": "asuka_kirara",
+    "name": "明日花キララ",
+    "image": "https://images.entamenext.com/articles/31000/31274/478x850/110e0b3cb64739ed4dfaf8a275ce84e5.jpg",
+    "bio": "インフルエンサー",
+    "career": "圧倒的な美貌とスタイルで男女問わず支持を集めるカリスマ。現在はファッションブランドのプロデュースや美容外科のプロデュースなど、実業家としても成功を収めており、SNSでの影響力は絶大。",
+    "age": "37",
+    "height": "162",
+    "cup": "H",
+    "size": "B90 W58 H85",
+    "birthplace": "東京都",
+    "genre": "モデル / 実業家",
+    "catch": "誰もが憧れる顔",
+    "tags": [
+      "セクシー",
+      "グラマラス",
+      "大人系",
+      "インフルエンサー"
+    ]
+  },
+  {
+    "id": "shibuya_nagisa",
+    "name": "渋谷凪咲",
+    "image": "https://profile.yoshimoto.co.jp/assets/data/profile/10096/71fdca78917dc16d42ca305fdf28d8b6aab3d2d7.jpg",
+    "bio": "元NMB48",
+    "career": "NMB48の中心メンバーとして活動し、独特の「大喜利力」と高いバラエティ対応力でブレイク。現在はソロタレントとして多くのレギュラー番組を持ち、お茶の間の人気者として活躍中。グラビアでも癒やし系の魅力を発揮している。",
+    "age": "29",
+    "height": "163",
+    "cup": "A",
+    "size": "B80 W60 H85",
+    "birthplace": "大阪府",
+    "genre": "タレント / アイドル",
+    "catch": "笑顔の代名詞",
+    "tags": [
+      "癒し系",
+      "アイドル系",
+      "可愛い系"
+    ]
+  },
+  {
+    "id": "matsuda_konoka",
+    "name": "松田好花",
+    "image": "https://cdn.hinatazaka46.com/files/14/diary/official/member/moblog/202508/mobk8Bw4X.jpg",
+    "bio": "日向坂46",
+    "career": "日向坂46の二期生。朝の情報番組「THE TIME,」への出演やラジオパーソナリティとして、その高い知性とトーク力が評価されている。清楚なビジュアルと多才な一面を持ち、幅広い層から支持されている。",
+    "age": "26",
+    "height": "157",
+    "cup": "C",
+    "size": "B80 W58 H84",
+    "birthplace": "京都府",
+    "genre": "アイドル",
+    "catch": "多彩な努力家",
+    "tags": [
+      "清楚",
+      "癒し系",
+      "アイドル系",
+      "クール"
+    ]
   }
 ]
