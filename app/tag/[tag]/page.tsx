@@ -39,6 +39,7 @@ export default async function TagPage({
 }) {
   const { tag } = await params;
   const decodedTag = decodeURIComponent(tag);
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   const q = query(
     collection(db, "idols"),
@@ -65,7 +66,7 @@ export default async function TagPage({
               "@type": "ListItem",
               position: index + 1,
               name: idol.name,
-              url: `https://your-domain.com/idol/${idol.id}`
+              url: `${baseUrl}/idol/${idol.id}`
             })),
           }),
         }}
@@ -91,7 +92,7 @@ export default async function TagPage({
                 {decodedTag}<span className="text-pink-500 not-italic text-2xl ml-2">ARCHIVE</span>
               </h1>
             </div>
-            
+
             <div className="max-w-3xl">
               <p className="text-slate-500 text-lg font-medium leading-relaxed">
                 <span className="text-slate-900 font-bold">{decodedTag}</span> 属性を持つキャストを独自の注目度スコアに基づきリストアップしました。
@@ -106,8 +107,8 @@ export default async function TagPage({
                   key={t}
                   href={`/tag/${encodeURIComponent(t)}`}
                   className={`px-4 py-2 rounded-full text-[10px] font-black tracking-widest transition-all border 
-                    ${t === decodedTag 
-                      ? "bg-pink-500 border-pink-500 text-white shadow-lg shadow-pink-500/20" 
+                    ${t === decodedTag
+                      ? "bg-pink-500 border-pink-500 text-white shadow-lg shadow-pink-500/20"
                       : "bg-white border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900"}`}
                 >
                   #{t.toUpperCase()}

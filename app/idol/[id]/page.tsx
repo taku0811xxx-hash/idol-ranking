@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function IdolDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const docSnap = await getDoc(doc(db, "idols", decodedId));
 
   if (!docSnap.exists()) {
@@ -52,11 +53,17 @@ export default async function IdolDetail({ params }: { params: Promise<{ id: str
             "@type": "Person",
             name: idol.name,
             image: idol.image,
+            url: `${baseUrl}/idol/${decodedId}`,
             description: idol.bio || "",
+            height: idol.height ? {
+              "@type": "QuantitativeValue",
+              "value": idol.height,
+              "unitCode": "CMT"
+            } : undefined,
+            // サイト独自の評価があるなら、AggregateRatingを追加するのも手です
           }),
         }}
       />
-
       <div className="pt-24 pb-32 min-h-screen bg-[#F8FAFC]">
         <div className="max-w-6xl mx-auto px-6">
 
